@@ -8,7 +8,9 @@
 
 ## Synopsis
 
-Go axing logs. Because I don't like log rotate. Still I little experimental I must admit.
+Go axing logs, my dear. Because I don't like log rotate. A cronjob must suffice for rotating log files.
+
+Still I little experimental I must admit.
 
 ## Help
 
@@ -23,8 +25,8 @@ Flags:
   -h, --help                      Show context-sensitive help.
   -r, --matcher="\\.log$"         regex matcher for file detection
   -m, --max-age="0"               remove compressed log files older than x,
-                                  default keeps all, use with duration like:
-                                  12h, 4d, 2w, 6m, 2y...
+                                  default keeps all, use with duration like i.e.
+                                  90m, 12h, 4d, 2w
   -l, --log-file="/dev/stdout"    log file
       --log-level="info"          log level
       --log-no-colors             disable output colours, print plain text
