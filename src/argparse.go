@@ -23,7 +23,7 @@ var (
 var CLI struct {
 	Folder       string `help:"folder to process, positional arg required" arg optional`
 	Matcher      string `help:"regex matcher for file detection" short:r default:\.log$`
-	MaxAge       string `help:"remove compressed log files older than x, default keeps all, use with duration like: 12h, 4d, 2w, 6m, 2y..." short:m default:0`
+	MaxAge       string `help:"remove compressed log files older than x, default keeps all, use with duration like i.e. 12h, 4d, 2w, 6m" short:m default:0`
 	LogFile      string `help:"log file" short:l default:/dev/stdout`
 	LogLevel     string `help:"log level" default:info enum:"trace,debug,info,error,fatal"`
 	LogNoColors  bool   `help:"disable output colours, print plain text"`
