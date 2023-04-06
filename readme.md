@@ -1,4 +1,4 @@
-# Logaxe ![example workflow](https://github.com/triole/example/actions/workflows/build.yaml/badge.svg)
+# Logaxe ![build](https://github.com/triole/logaxe/actions/workflows/build.yaml/badge.svg)
 
 <!--- mdtoc: toc begin -->
 
