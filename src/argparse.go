@@ -52,7 +52,7 @@ func parseArgs() {
 	)
 	_ = ctx.Run()
 
-	if CLI.VersionFlag == true {
+	if CLI.VersionFlag {
 		printBuildTags(BUILDTAGS)
 		os.Exit(0)
 	}

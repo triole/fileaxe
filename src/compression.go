@@ -2,12 +2,11 @@ package main
 
 import (
 	"bufio"
-	"io/ioutil"
+	"io"
 	"os"
 	"path"
 	"strings"
 
-	"github.com/klauspost/pgzip"
 	gzip "github.com/klauspost/pgzip"
 	"github.com/triole/logseal"
 )
@@ -20,10 +19,10 @@ func gzipFile(sourceFile, targetArchive string) {
 	sfil, _ := os.Open(sourceFile)
 
 	reader := bufio.NewReader(sfil)
-	content, _ := ioutil.ReadAll(reader)
+	content, _ := io.ReadAll(reader)
 
 	tfil, _ := os.Create(targetArchive)
-	w, err := gzip.NewWriterLevel(tfil, pgzip.BestCompression)
+	w, err := gzip.NewWriterLevel(tfil, gzip.BestCompression)
 	lg.IfErrError("can not init gzip writer", logseal.F{"error": err})
 
 	_, err = w.Write(content)

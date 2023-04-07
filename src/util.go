@@ -2,20 +2,19 @@ package main
 
 import (
 	"regexp"
-	"runtime"
 	"time"
 
 	"github.com/xhit/go-str2duration/v2"
 )
 
-func nproc() int {
-	maxProcs := runtime.GOMAXPROCS(0)
-	numCPU := runtime.NumCPU()
-	if maxProcs < numCPU {
-		return maxProcs
-	}
-	return numCPU
-}
+// func nproc() int {
+// 	maxProcs := runtime.GOMAXPROCS(0)
+// 	numCPU := runtime.NumCPU()
+// 	if maxProcs < numCPU {
+// 		return maxProcs
+// 	}
+// 	return numCPU
+// }
 
 func rxFind(rx string, content string) (r string) {
 	temp, _ := regexp.Compile(rx)
