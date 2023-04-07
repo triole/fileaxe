@@ -16,15 +16,29 @@ import (
 )
 
 func TestMainProcessor(t *testing.T) {
+	fol := "../testdata"
 	lg = logseal.Init("trace")
-	conf := initConf(
-		"../testdata", "\\.log$", "1s", false, false,
-	)
+	conf := initConf(fol, "\\.log$", "1s", false, false)
 	time.Sleep(1500)
 
 	generateTestLogFiles(0, 9)
 	runProcessor(conf)
 
+	checkFiles(fol, "\\.log$", "d41d8cd98f00b204e9800998ecf8427e", 9, t)
+	checkFiles(fol, "\\.gz$", "0e93baf81315ce74e7484d374d550179", 9, t)
+}
+
+func checkFiles(fol, matcher, hash string, amount int, t *testing.T) {
+	files := find(fol, matcher, 0, time.Now())
+	if len(files) != amount {
+		t.Errorf("test error, amount of files wrong: %d != %d", len(files), amount)
+	}
+	for _, fil := range files {
+		md5sum, _ := md5SumOfFile(fil.Path)
+		if md5sum != hash {
+			t.Errorf("test error, log file hash wrong: %s != %s", md5sum, hash)
+		}
+	}
 }
 
 func generateTestLogFiles(i, j int) {
@@ -59,13 +73,13 @@ func makeLine(i int) string {
 	return fmt.Sprintf(
 		"%d --- %s +++ %s +++ %s",
 		i,
-		sha512(strconv.Itoa(i)),
-		sha512(strconv.Itoa(i+1000)),
-		sha512(strconv.Itoa(i+2000)),
+		sha512OfString(strconv.Itoa(i)),
+		sha512OfString(strconv.Itoa(i+1000)),
+		sha512OfString(strconv.Itoa(i+2000)),
 	)
 }
 
-func sha512(str string) string {
+func sha512OfString(str string) string {
 	hasher := sha1.New()
 	hasher.Write([]byte(str))
 	return hex.EncodeToString(hasher.Sum(nil))
