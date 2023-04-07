@@ -13,8 +13,10 @@ import (
 
 type tFileInfo struct {
 	Path    string
+	IsDir   bool
 	LastMod time.Time
 	Age     time.Duration
+	Err     error
 }
 
 type tFileInfos []tFileInfo
@@ -51,13 +53,8 @@ func find(basedir string, rxFilter string, maxAge time.Duration, refTime time.Ti
 	rxf, _ := regexp.Compile(rxFilter)
 	err = filepath.Walk(basedir, func(path string, f os.FileInfo, err error) error {
 		if rxf.MatchString(path) {
-			inf, err := os.Stat(path)
-			if err == nil && !inf.IsDir() {
-				fi := tFileInfo{
-					Path:    path,
-					LastMod: inf.ModTime(),
-					Age:     refTime.Sub(inf.ModTime()),
-				}
+			fi := fileInfo(path, refTime)
+			if fi.Err == nil && !fi.IsDir {
 				if maxAge == 0 {
 					fileList = append(fileList, fi)
 				} else {
@@ -65,10 +62,6 @@ func find(basedir string, rxFilter string, maxAge time.Duration, refTime time.Ti
 						fileList = append(fileList, fi)
 					}
 				}
-			} else {
-				lg.IfErrInfo("stat file failed", logseal.F{
-					"path": path,
-				})
 			}
 		}
 		return nil
@@ -79,6 +72,19 @@ func find(basedir string, rxFilter string, maxAge time.Duration, refTime time.Ti
 	})
 	lg.Debug("found amount of files", logseal.F{"no": len(fileList)})
 	sort.Sort(tFileInfos(fileList))
+	return
+}
+
+func fileInfo(path string, refTime time.Time) (fi tFileInfo) {
+	inf, err := os.Stat(path)
+	fi.Path = path
+	fi.IsDir = inf.IsDir()
+	fi.LastMod = inf.ModTime()
+	fi.Age = refTime.Sub(fi.LastMod)
+	fi.Err = err
+	lg.IfErrInfo("retrieve file stats failed", logseal.F{
+		"path": path, "error": err,
+	})
 	return
 }
 
