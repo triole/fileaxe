@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"logaxe/src/logaxe"
 	"os"
 	"strconv"
 	"testing"
@@ -16,20 +17,23 @@ import (
 )
 
 func TestMainProcessor(t *testing.T) {
-	fol := "../testdata"
-	lg = logseal.Init("trace")
-	conf := initConf(fol, "\\.log$", "1s", false, false)
-	time.Sleep(1500)
-
 	generateTestLogFiles(0, 9)
-	runProcessor(conf)
+	time.Sleep(1100)
 
-	checkFiles(fol, "\\.log$", "d41d8cd98f00b204e9800998ecf8427e", 9, t)
-	checkFiles(fol, "\\.gz$", "0e93baf81315ce74e7484d374d550179", 9, t)
+	fol := "../testdata"
+	lg = logseal.Init("info")
+	la := logaxe.InitLogAxe(fol, "\\.log$", "1s", false, false, lg)
+	la.Run()
+
+	files := la.Find(fol, "\\.log$", 0, time.Now())
+	verifyFiles(files, "d41d8cd98f00b204e9800998ecf8427e", 9, t)
+
+	files = la.Find(fol, "\\.gz$", 0, time.Now())
+	verifyFiles(files, "0e93baf81315ce74e7484d374d550179", 9, t)
 }
 
-func checkFiles(fol, matcher, hash string, amount int, t *testing.T) {
-	files := find(fol, matcher, 0, time.Now())
+func verifyFiles(files logaxe.FileInfos, hash string, amount int, t *testing.T) {
+
 	if len(files) != amount {
 		t.Errorf("test error, amount of files wrong: %d != %d", len(files), amount)
 	}

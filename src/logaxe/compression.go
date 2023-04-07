@@ -1,4 +1,4 @@
-package main
+package logaxe
 
 import (
 	"bufio"
@@ -12,36 +12,41 @@ import (
 	"github.com/triole/logseal"
 )
 
-func gzipFile(sourceFile, targetArchive string) {
+func (la LogAxe) gzipFile(sourceFile FileInfo, targetArchive string) {
 	start := time.Now()
 
-	lg.Debug("compress file", logseal.F{
-		"source": sourceFile,
-		"target": targetArchive,
+	la.Lg.Info("compress file", logseal.F{
+		"file": sourceFile.Path,
+		"size": sourceFile.SizeHR,
 	})
-	sfil, _ := os.Open(sourceFile)
 
+	sfil, _ := os.Open(sourceFile.Path)
 	reader := bufio.NewReader(sfil)
 	content, _ := io.ReadAll(reader)
 
 	tfil, _ := os.Create(targetArchive)
 	w, err := gzip.NewWriterLevel(tfil, gzip.BestCompression)
-	lg.IfErrError("can not init gzip writer", logseal.F{"error": err})
+	la.Lg.IfErrError("can not init gzip writer", logseal.F{"error": err})
 
 	_, err = w.Write(content)
-	lg.IfErrError("gzip error", logseal.F{"error": err})
+	la.Lg.IfErrError("gzip error", logseal.F{"error": err})
 
 	w.Close()
 
 	t := time.Now()
 	elapsed := t.Sub(start)
 
-	lg.Info(
-		"compression done", logseal.F{"file": sourceFile, "duration": elapsed},
+	taInfos := la.fileInfo(targetArchive, time.Now())
+	la.Lg.Info(
+		"compression done",
+		logseal.F{
+			"file": targetArchive, "duration": elapsed,
+			"size": taInfos.SizeHR,
+		},
 	)
 }
 
-func makeZipArchiveFilenameAndDetectionScheme(fn string) (tar, det string) {
+func (la LogAxe) makeZipArchiveFilenameAndDetectionScheme(fn string) (tar, det string) {
 	folder := rxFind(".*\\/", fn)
 	base := rxFind("[^/]+$", fn)
 	base = rxFind(".*?\\.", base)
