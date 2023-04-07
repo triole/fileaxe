@@ -37,7 +37,10 @@ func makeZipArchiveFilenameAndDetectionScheme(fn string) (tar, det string) {
 	base = rxFind(".*?\\.", base)
 	base = strings.TrimSuffix(base, ".")
 	tar = base + "_" + timestamp() + ".log.gz"
-	det = "/" + base + "_[0-2][0-9]{3}[0-1][0-9][0-3][0-9]t[0-2][0-9][0-5][0-9][0-5][0-9]\\.log\\.gz$"
+	det = path.Join(
+		folder,
+		base+"_[0-2][0-9]{3}[0-1][0-9][0-3][0-9]t[0-2][0-9][0-5][0-9][0-5][0-9]\\.log\\.gz$",
+	)
 	tar = path.Join(folder, tar)
 	return
 }
