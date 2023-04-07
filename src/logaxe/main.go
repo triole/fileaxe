@@ -22,17 +22,15 @@ func (la LogAxe) Run() {
 			},
 		)
 
-		if !la.DryRun {
-			la.gzipFile(fil, tar)
-			if !la.SkipTruncate {
-				err := la.truncate(fil.Path)
-				la.Lg.IfErrError(
-					"can not truncate file",
-					logseal.F{"file": fil, "error": err},
-				)
-			} else {
-				la.Lg.Debug("skip truncate")
-			}
+		la.gzipFile(fil, tar)
+		if !la.SkipTruncate {
+			err := la.truncate(fil.Path)
+			la.Lg.IfErrError(
+				"can not truncate file",
+				logseal.F{"file": fil, "error": err},
+			)
+		} else {
+			la.Lg.Debug("skip truncate")
 		}
 
 		if la.MaxAge > 0 {

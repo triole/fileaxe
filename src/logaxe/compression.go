@@ -20,30 +20,32 @@ func (la LogAxe) gzipFile(sourceFile FileInfo, targetArchive string) {
 		"size": sourceFile.SizeHR,
 	})
 
-	sfil, _ := os.Open(sourceFile.Path)
-	reader := bufio.NewReader(sfil)
-	content, _ := io.ReadAll(reader)
+	if !la.DryRun {
+		sfil, _ := os.Open(sourceFile.Path)
+		reader := bufio.NewReader(sfil)
+		content, _ := io.ReadAll(reader)
 
-	tfil, _ := os.Create(targetArchive)
-	w, err := gzip.NewWriterLevel(tfil, gzip.BestCompression)
-	la.Lg.IfErrError("can not init gzip writer", logseal.F{"error": err})
+		tfil, _ := os.Create(targetArchive)
+		w, err := gzip.NewWriterLevel(tfil, gzip.BestCompression)
+		la.Lg.IfErrError("can not init gzip writer", logseal.F{"error": err})
 
-	_, err = w.Write(content)
-	la.Lg.IfErrError("gzip error", logseal.F{"error": err})
+		_, err = w.Write(content)
+		la.Lg.IfErrError("gzip error", logseal.F{"error": err})
 
-	w.Close()
+		w.Close()
 
-	t := time.Now()
-	elapsed := t.Sub(start)
+		t := time.Now()
+		elapsed := t.Sub(start)
 
-	taInfos := la.fileInfo(targetArchive, time.Now())
-	la.Lg.Info(
-		"compression done",
-		logseal.F{
-			"file": targetArchive, "duration": elapsed,
-			"size": taInfos.SizeHR,
-		},
-	)
+		taInfos := la.fileInfo(targetArchive, time.Now())
+		la.Lg.Info(
+			"compression done",
+			logseal.F{
+				"file": targetArchive, "duration": elapsed,
+				"size": taInfos.SizeHR,
+			},
+		)
+	}
 }
 
 func (la LogAxe) makeZipArchiveFilenameAndDetectionScheme(fn string) (tar, det string) {
