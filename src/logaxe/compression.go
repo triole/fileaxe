@@ -12,7 +12,12 @@ import (
 	"github.com/triole/logseal"
 )
 
-func (la LogAxe) gzipFile(sourceFile FileInfo, targetArchive string) {
+func (la LogAxe) gzipFile(sourceFile FileInfo, targetArchive string) (err error) {
+	var sfil io.Reader
+	var tfil io.Writer
+	var tarc *gzip.Writer
+	var content []byte
+
 	start := time.Now()
 
 	la.Lg.Info("compress file", logseal.F{
@@ -21,18 +26,50 @@ func (la LogAxe) gzipFile(sourceFile FileInfo, targetArchive string) {
 	})
 
 	if !la.DryRun {
-		sfil, _ := os.Open(sourceFile.Path)
+		sfil, err = os.Open(sourceFile.Path)
+		la.Lg.IfErrError(
+			"can not open file",
+			logseal.F{"file": sourceFile.Path, "error": err},
+		)
+		if err != nil {
+			return
+		}
+
 		reader := bufio.NewReader(sfil)
-		content, _ := io.ReadAll(reader)
+		content, err = io.ReadAll(reader)
+		la.Lg.IfErrError(
+			"can not read file",
+			logseal.F{"file": sourceFile.Path, "error": err},
+		)
+		if err != nil {
+			return
+		}
 
-		tfil, _ := os.Create(targetArchive)
-		w, err := gzip.NewWriterLevel(tfil, gzip.BestCompression)
-		la.Lg.IfErrError("can not init gzip writer", logseal.F{"error": err})
+		tfil, err = os.Create(targetArchive)
+		la.Lg.IfErrError(
+			"can not init gzip writer",
+			logseal.F{"file": targetArchive, "error": err},
+		)
+		if err != nil {
+			return
+		}
 
-		_, err = w.Write(content)
+		tarc, err = gzip.NewWriterLevel(tfil, gzip.BestCompression)
+		la.Lg.IfErrError(
+			"can not write compressed archive",
+			logseal.F{"file": tfil, "error": err},
+		)
+		if err != nil {
+			return
+		}
+
+		_, err = tarc.Write(content)
 		la.Lg.IfErrError("gzip error", logseal.F{"error": err})
+		if err != nil {
+			return
+		}
 
-		w.Close()
+		tarc.Close()
 
 		t := time.Now()
 		elapsed := t.Sub(start)
@@ -46,6 +83,8 @@ func (la LogAxe) gzipFile(sourceFile FileInfo, targetArchive string) {
 			},
 		)
 	}
+
+	return
 }
 
 func (la LogAxe) makeZipArchiveFilenameAndDetectionScheme(fn string) (tar, det string) {

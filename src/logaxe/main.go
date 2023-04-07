@@ -22,8 +22,8 @@ func (la LogAxe) Run() {
 			},
 		)
 
-		la.gzipFile(fil, tar)
-		if !la.SkipTruncate {
+		err := la.gzipFile(fil, tar)
+		if !la.SkipTruncate && err == nil {
 			err := la.truncate(fil.Path)
 			la.Lg.IfErrError(
 				"can not truncate file",
