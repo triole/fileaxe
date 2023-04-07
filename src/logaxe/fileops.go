@@ -96,7 +96,7 @@ func (la LogAxe) fileInfo(path string, refTime time.Time) (fi FileInfo) {
 }
 
 func (la LogAxe) truncate(filename string) error {
-	la.Lg.Debug("truncate file", logseal.F{"file": filename})
+	la.Lg.Info("truncate", logseal.F{"file": filename})
 	f, err := os.OpenFile(filename, os.O_TRUNC, 0664)
 	if err != nil {
 		return fmt.Errorf("could not open file %q for truncation: %v", filename, err)
