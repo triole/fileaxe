@@ -6,12 +6,15 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	gzip "github.com/klauspost/pgzip"
 	"github.com/triole/logseal"
 )
 
 func gzipFile(sourceFile, targetArchive string) {
+	start := time.Now()
+
 	lg.Debug("compress file", logseal.F{
 		"source": sourceFile,
 		"target": targetArchive,
@@ -29,6 +32,13 @@ func gzipFile(sourceFile, targetArchive string) {
 	lg.IfErrError("gzip error", logseal.F{"error": err})
 
 	w.Close()
+
+	t := time.Now()
+	elapsed := t.Sub(start)
+
+	lg.Info(
+		"compression done", logseal.F{"file": sourceFile, "duration": elapsed},
+	)
 }
 
 func makeZipArchiveFilenameAndDetectionScheme(fn string) (tar, det string) {
