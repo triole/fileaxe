@@ -21,16 +21,16 @@ var (
 )
 
 var CLI struct {
-	Folder       string `help:"folder to process, positional arg required" arg optional`
-	Matcher      string `help:"regex matcher for file detection" short:r default:\.log$`
-	MaxAge       string `help:"remove compressed log files older than x, default keeps all, use with duration like i.e. 90m, 12h, 4d, 2w" short:m default:0`
-	LogFile      string `help:"log file" short:l default:/dev/stdout`
-	LogLevel     string `help:"log level" default:info enum:"trace,debug,info,error,fatal"`
+	Folder       string `help:"folder to process, positional arg required" arg:"" optional:""`
+	Matcher      string `help:"regex matcher for file detection" short:"r" default:"\.log$"`
+	MaxAge       string `help:"remove compressed log files older than x, default keeps all, use with duration like i.e. 90m, 12h, 4d, 2w" short:"m" default:"0"`
+	LogFile      string `help:"log file" short:"l" default:"/dev/stdout"`
+	LogLevel     string `help:"log level" default:"info" enum:"trace,debug,info,error,fatal"`
 	LogNoColors  bool   `help:"disable output colours, print plain text"`
 	LogJSON      bool   `help:"enable json log, instead of text one"`
-	SkipTruncate bool   `help:"skip file truncation, don't empty compressed log files" short:k`
-	DryRun       bool   `help:"dry run, just print don't do" short:n`
-	VersionFlag  bool   `help:"display version" short:V`
+	SkipTruncate bool   `help:"skip file truncation, don't empty compressed log files" short:"k"`
+	DryRun       bool   `help:"dry run, just print don't do" short:"n"`
+	VersionFlag  bool   `help:"display version" short:"V"`
 }
 
 func parseArgs() {
