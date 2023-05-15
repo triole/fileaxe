@@ -1,102 +1,106 @@
 package logaxe
 
 import (
-	"bufio"
-	"io"
+	"context"
 	"os"
 	"path"
 	"strings"
 	"time"
 
-	gzip "github.com/klauspost/pgzip"
+	"github.com/mholt/archiver/v4"
 	"github.com/triole/logseal"
 )
 
-func (la LogAxe) gzipFile(sourceFile FileInfo, targetArchive string) (err error) {
-	var sfil io.Reader
-	var tfil io.Writer
-	var tarc *gzip.Writer
-	var content []byte
+type tTarget struct {
+	Folder          string
+	FullPath        string
+	BaseName        string
+	ShortName       string
+	DetectionScheme string
+}
 
+func (la LogAxe) compressFile(sourceFile FileInfo, target tTarget) (err error) {
 	start := time.Now()
+
+	format := archiver.CompressedArchive{
+		Compression: archiver.Gz{
+			CompressionLevel: 9,
+			Multithreaded:    true,
+		},
+		Archival: archiver.Tar{},
+	}
+	if la.TargetFormat == "snappy" {
+		format = archiver.CompressedArchive{
+			Compression: archiver.Sz{},
+			Archival:    archiver.Tar{},
+		}
+	}
+	if la.TargetFormat == "xz" {
+		format = archiver.CompressedArchive{
+			Compression: archiver.Xz{},
+			Archival:    archiver.Tar{},
+		}
+	}
 
 	la.Lg.Info("compress file", logseal.F{
 		"file": sourceFile.Path,
 		"size": sourceFile.SizeHR,
 	})
 
-	if !la.DryRun {
-		sfil, err = os.Open(sourceFile.Path)
-		la.Lg.IfErrError(
-			"can not open file",
-			logseal.F{"file": sourceFile.Path, "error": err},
-		)
-		if err != nil {
-			return
-		}
+	sourceFilesArr := []string{sourceFile.Path}
+	la.runCompression(sourceFilesArr, target, format)
 
-		reader := bufio.NewReader(sfil)
-		content, err = io.ReadAll(reader)
-		la.Lg.IfErrError(
-			"can not read file",
-			logseal.F{"file": sourceFile.Path, "error": err},
-		)
-		if err != nil {
-			return
-		}
+	end := time.Now()
+	elapsed := end.Sub(start)
 
-		tfil, err = os.Create(targetArchive)
-		la.Lg.IfErrError(
-			"can not init gzip writer",
-			logseal.F{"file": targetArchive, "error": err},
-		)
-		if err != nil {
-			return
-		}
-
-		tarc, err = gzip.NewWriterLevel(tfil, gzip.BestCompression)
-		la.Lg.IfErrError(
-			"can not write compressed archive",
-			logseal.F{"file": tfil, "error": err},
-		)
-		if err != nil {
-			return
-		}
-
-		_, err = tarc.Write(content)
-		la.Lg.IfErrError("gzip error", logseal.F{"error": err})
-		if err != nil {
-			return
-		}
-
-		tarc.Close()
-
-		t := time.Now()
-		elapsed := t.Sub(start)
-
-		taInfos := la.fileInfo(targetArchive, time.Now())
-		la.Lg.Info(
-			"compression done",
-			logseal.F{
-				"file": targetArchive, "duration": elapsed,
-				"size": taInfos.SizeHR,
-			},
-		)
-	}
+	taInfos := la.fileInfo(target.FullPath, time.Now())
+	la.Lg.Info(
+		"compression done",
+		logseal.F{
+			"file": target.FullPath, "duration": elapsed,
+			"size": taInfos.SizeHR,
+		},
+	)
 
 	return
 }
 
-func (la LogAxe) makeZipArchiveFilenameAndDetectionScheme(fn string) (tar, det string) {
-	folder := rxFind(".*\\/", fn)
+func (la LogAxe) runCompression(sources []string, target tTarget, format archiver.CompressedArchive) (err error) {
+	var files []archiver.File
+	fileMap := make(map[string]string)
+	for _, fil := range sources {
+		fileMap[fil] = target.BaseName
+	}
+
+	files, err = archiver.FilesFromDisk(nil, fileMap)
+	if err != nil {
+		return err
+	}
+
+	out, err := os.Create(target.FullPath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	err = format.Archive(context.Background(), out, files)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (la LogAxe) makeZipArchiveFilenameAndDetectionScheme(fn string) (tar tTarget) {
+	tar.Folder = rxFind(".*\\/", fn)
 	base := rxFind("[^/]+$", fn)
 	base = rxFind(".*?\\.", base)
 	base = strings.TrimSuffix(base, ".")
-	tar = base + "_" + timestamp() + ".log.gz"
-	det = path.Join(
-		folder,
-		base+"_[0-2][0-9]{3}[0-1][0-9][0-3][0-9]t[0-2][0-9][0-5][0-9][0-5][0-9]\\.log\\.gz$",
+	tar.BaseName = base + "_" + timestamp() + ".log"
+	tar.ShortName = tar.BaseName + "." + la.TargetFormat
+	tar.DetectionScheme = path.Join(
+		tar.Folder,
+		base+"_[0-2][0-9]{3}[0-1][0-9][0-3][0-9]t[0-2][0-9][0-5][0-9][0-5][0-9]\\.log\\."+la.TargetFormat+"$",
 	)
-	tar = path.Join(folder, tar)
+	tar.FullPath = path.Join(tar.Folder, tar.ShortName)
 	return
 }

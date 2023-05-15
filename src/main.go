@@ -15,7 +15,8 @@ func main() {
 
 	lg = logseal.Init(CLI.LogLevel, CLI.LogFile, CLI.LogNoColors, CLI.LogJSON)
 	la := logaxe.InitLogAxe(
-		CLI.Folder, CLI.Matcher, CLI.MaxAge, CLI.SkipTruncate, CLI.DryRun, lg,
+		CLI.Folder, CLI.Matcher, CLI.Format, CLI.MaxAge, CLI.SkipTruncate,
+		CLI.DryRun, lg,
 	)
 
 	la.Run()

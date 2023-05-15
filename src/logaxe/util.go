@@ -9,15 +9,6 @@ import (
 	"github.com/xhit/go-str2duration/v2"
 )
 
-// func nproc() int {
-// 	maxProcs := runtime.GOMAXPROCS(0)
-// 	numCPU := runtime.NumCPU()
-// 	if maxProcs < numCPU {
-// 		return maxProcs
-// 	}
-// 	return numCPU
-// }
-
 func humanReadableFileSize(size float64) string {
 	if size < 1 {
 		return "0"

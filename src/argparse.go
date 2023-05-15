@@ -17,13 +17,14 @@ var (
 	BUILDTAGS      string
 	appName        = "logaxe"
 	appDescription = "go axing logs"
-	appMainversion = "0.1"
+	appMainversion = "0.2"
 )
 
 var CLI struct {
 	Folder       string `help:"folder to process, positional arg required" arg:"" optional:""`
 	Matcher      string `help:"regex matcher for file detection" short:"r" default:"\.log$"`
 	MaxAge       string `help:"remove compressed log files older than x, default keeps all, use with duration like i.e. 90m, 12h, 4d, 2w" short:"m" default:"0"`
+	Format       string `help:"compressed target archive format" short:"f" default:"gz" enum:"snappy,gz,xz"`
 	LogFile      string `help:"log file" short:"l" default:"/dev/stdout"`
 	LogLevel     string `help:"log level" default:"info" enum:"trace,debug,info,error,fatal"`
 	LogNoColors  bool   `help:"disable output colours, print plain text"`

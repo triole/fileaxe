@@ -10,6 +10,7 @@ import (
 type LogAxe struct {
 	Folder       string
 	RegexMatcher string
+	TargetFormat string
 	Now          time.Time
 	MaxAgeStr    string
 	MaxAge       time.Duration
@@ -18,7 +19,7 @@ type LogAxe struct {
 	Lg           logseal.Logseal
 }
 
-func InitLogAxe(folder, matcher, maxAgeStr string, skipTruncate, dryRun bool, lg logseal.Logseal) (la LogAxe) {
+func InitLogAxe(folder, matcher, format, maxAgeStr string, skipTruncate, dryRun bool, lg logseal.Logseal) (la LogAxe) {
 	la.Now = time.Now()
 	la.Lg = lg
 
@@ -29,6 +30,7 @@ func InitLogAxe(folder, matcher, maxAgeStr string, skipTruncate, dryRun bool, lg
 	})
 	la.Folder = abs
 	la.RegexMatcher = matcher
+	la.TargetFormat = format
 	la.SkipTruncate = skipTruncate
 	la.DryRun = dryRun
 

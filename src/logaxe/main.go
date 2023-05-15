@@ -15,14 +15,14 @@ func (la LogAxe) Run() {
 
 	logFiles := la.Find(la.Folder, la.RegexMatcher, 0, la.Now)
 	for _, fil := range logFiles {
-		tar, det := la.makeZipArchiveFilenameAndDetectionScheme(fil.Path)
+		tar := la.makeZipArchiveFilenameAndDetectionScheme(fil.Path)
 		la.Lg.Trace("make file name and detection scheme",
 			logseal.F{
-				"source": fil.Path, "target": tar, "detection_scheme": det,
+				"source": fil.Path, "target": tar, "detection_scheme": tar.DetectionScheme,
 			},
 		)
 
-		err := la.gzipFile(fil, tar)
+		err := la.compressFile(fil, tar)
 		if !la.SkipTruncate && err == nil {
 			err := la.truncate(fil.Path)
 			la.Lg.IfErrError(
@@ -34,7 +34,7 @@ func (la LogAxe) Run() {
 		}
 
 		if la.MaxAge > 0 {
-			compressedLogs := la.Find(la.Folder, det, la.MaxAge, la.Now)
+			compressedLogs := la.Find(la.Folder, tar.DetectionScheme, la.MaxAge, la.Now)
 			for _, fil := range compressedLogs {
 				la.Lg.Info(
 					"remove file", logseal.F{

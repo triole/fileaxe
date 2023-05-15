@@ -22,7 +22,7 @@ func TestMainProcessor(t *testing.T) {
 	generateTestLogFiles(fol, 0, 9)
 
 	lg = logseal.Init("info")
-	la := logaxe.InitLogAxe(fol, "\\.log$", "1s", false, false, lg)
+	la := logaxe.InitLogAxe(fol, "\\.log$", "gz", "1s", false, false, lg)
 	la.Run()
 
 	files := la.Find(fol, "\\.log$", 0, time.Now())
