@@ -9,6 +9,7 @@ import (
 	"log"
 	"logaxe/src/logaxe"
 	"os"
+	"path"
 	"strconv"
 	"testing"
 	"time"
@@ -17,10 +18,9 @@ import (
 )
 
 func TestMainProcessor(t *testing.T) {
-	generateTestLogFiles(0, 9)
-	time.Sleep(1100)
+	fol := "../testdata/tmp"
+	generateTestLogFiles(fol, 0, 9)
 
-	fol := "../testdata"
 	lg = logseal.Init("info")
 	la := logaxe.InitLogAxe(fol, "\\.log$", "1s", false, false, lg)
 	la.Run()
@@ -45,10 +45,12 @@ func verifyFiles(files logaxe.FileInfos, hash string, amount int, t *testing.T) 
 	}
 }
 
-func generateTestLogFiles(i, j int) {
+func generateTestLogFiles(fol string, i, j int) {
+	os.MkdirAll(fol, 0755)
 	for i := 1; i <= j; i++ {
-		createFile(fmt.Sprintf("../testdata/log%v.log", i))
+		createFile(fmt.Sprintf(path.Join(fol, "log%v.log"), i))
 	}
+	time.Sleep(1000)
 }
 
 func createFile(target string) {

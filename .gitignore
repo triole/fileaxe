@@ -1,7 +1,6 @@
 .imdone/
 .task/
 build/
-testdata/
 tmp/
 go.trace
 secret.toml
