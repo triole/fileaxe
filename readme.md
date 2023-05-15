@@ -27,6 +27,7 @@ Flags:
   -m, --max-age="0"               remove compressed log files older than x,
                                   default keeps all, use with duration like i.e.
                                   90m, 12h, 4d, 2w
+  -f, --format="gz"               compressed target archive format
   -l, --log-file="/dev/stdout"    log file
       --log-level="info"          log level
       --log-no-colors             disable output colours, print plain text
