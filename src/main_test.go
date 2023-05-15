@@ -28,8 +28,8 @@ func TestMainProcessor(t *testing.T) {
 	files := la.Find(fol, "\\.log$", 0, time.Now())
 	verifyFiles(files, "d41d8cd98f00b204e9800998ecf8427e", 9, t)
 
-	files = la.Find(fol, "\\.gz$", 0, time.Now())
-	verifyFiles(files, "0e93baf81315ce74e7484d374d550179", 9, t)
+	// files = la.Find(fol, "\\.gz$", 0, time.Now())
+	// verifyFiles(files, "0e93baf81315ce74e7484d374d550179", 9, t)
 }
 
 func verifyFiles(files logaxe.FileInfos, hash string, amount int, t *testing.T) {

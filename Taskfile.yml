@@ -34,10 +34,12 @@ tasks:
     cmds:
       - cmd: >-
           for fol in {{.MODULES}}; do
-              echo -e "\nTest ${fol}"
-              cd "${fol}"
-              go test -timeout 30s -trace go.trace -race -cover
-          -bench=. . done
+            echo -e "\nTest ${fol}"
+            cd "${fol}"
+            go test -timeout 30s -trace go.trace \
+            -race -cover -bench=. .
+          done
+      - task: docker
     vars:
       MODULES:
         sh: find $(pwd)/src -maxdepth 1 -type d | sort | tr '\n'
@@ -56,6 +58,9 @@ tasks:
       - cmd: cp "{{.CURDIR}}/build/linux_x86_64/logaxe" "{{.CURDIR}}/testdata/tmp"
       - cmd: docker build --tag logaxe-test .
       - cmd: >-
+          docker ps -a | grep logaxe-test | grep -Po "^[0-9a-f]+"
+          | xargs -i docker rm {}
+      - cmd: >-
           docker run --kernel-memory="500m" --memory-swap="400m"
-          --memory="300m" --name logaxe logaxe-test
+          --memory="300m" --name logaxe-test logaxe-test
       - cmd: docker logs -f logaxe-test
