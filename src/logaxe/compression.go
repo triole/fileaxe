@@ -48,20 +48,27 @@ func (la LogAxe) compressFile(sourceFile FileInfo, target tTarget) (err error) {
 	})
 
 	sourceFilesArr := []string{sourceFile.Path}
-	la.runCompression(sourceFilesArr, target, format)
-
+	err = la.runCompression(sourceFilesArr, target, format)
 	end := time.Now()
 	elapsed := end.Sub(start)
 
-	taInfos := la.fileInfo(target.FullPath, time.Now())
-	la.Lg.Info(
-		"compression done",
-		logseal.F{
-			"file": target.FullPath, "duration": elapsed,
-			"size": taInfos.SizeHR,
-		},
-	)
-
+	if err == nil {
+		taInfos := la.fileInfo(target.FullPath, time.Now())
+		la.Lg.Info(
+			"compression done",
+			logseal.F{
+				"file": target.FullPath, "duration": elapsed,
+				"size": taInfos.SizeHR,
+			},
+		)
+	} else {
+		la.Lg.Error(
+			"compression failed",
+			logseal.F{
+				"path": sourceFile.Path, "duration": elapsed, "error": err,
+			},
+		)
+	}
 	return
 }
 
@@ -74,17 +81,29 @@ func (la LogAxe) runCompression(sources []string, target tTarget, format archive
 
 	files, err = archiver.FilesFromDisk(nil, fileMap)
 	if err != nil {
+		la.Lg.Error(
+			"mapping files failed",
+			logseal.F{"path": sources, "target": target, "error": err},
+		)
 		return err
 	}
 
 	out, err := os.Create(target.FullPath)
 	if err != nil {
+		la.Lg.Error(
+			"can not create file",
+			logseal.F{"target": target, "error": err},
+		)
 		return err
 	}
 	defer out.Close()
 
 	err = format.Archive(context.Background(), out, files)
 	if err != nil {
+		la.Lg.Error(
+			"archiving files failed",
+			logseal.F{"files": files, "target": target, "error": err},
+		)
 		return err
 	}
 	return nil
