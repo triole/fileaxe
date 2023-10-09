@@ -48,26 +48,28 @@ func (la LogAxe) compressFile(sourceFile FileInfo, target tTarget) (err error) {
 	})
 
 	sourceFilesArr := []string{sourceFile.Path}
-	err = la.runCompression(sourceFilesArr, target, format)
-	end := time.Now()
-	elapsed := end.Sub(start)
+	if !la.DryRun {
+		err = la.runCompression(sourceFilesArr, target, format)
+		end := time.Now()
+		elapsed := end.Sub(start)
 
-	if err == nil {
-		taInfos := la.fileInfo(target.FullPath, time.Now())
-		la.Lg.Info(
-			"compression done",
-			logseal.F{
-				"file": target.FullPath, "duration": elapsed,
-				"size": taInfos.SizeHR,
-			},
-		)
-	} else {
-		la.Lg.Error(
-			"compression failed",
-			logseal.F{
-				"path": sourceFile.Path, "duration": elapsed, "error": err,
-			},
-		)
+		if err == nil {
+			taInfos := la.fileInfo(target.FullPath, time.Now())
+			la.Lg.Info(
+				"compression done",
+				logseal.F{
+					"file": target.FullPath, "duration": elapsed,
+					"size": taInfos.SizeHR,
+				},
+			)
+		} else {
+			la.Lg.Error(
+				"compression failed",
+				logseal.F{
+					"path": sourceFile.Path, "duration": elapsed, "error": err,
+				},
+			)
+		}
 	}
 	return
 }
