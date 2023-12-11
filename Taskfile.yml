@@ -55,12 +55,12 @@ tasks:
     desc: run docker to test memory issue inside
     dir: testdata
     cmds:
-      - cmd: cp "{{.CURDIR}}/build/linux_x86_64/logaxe" "{{.CURDIR}}/testdata/tmp"
+      - cmd: cp "{{.CURDIR}}/build/linux_x86_64/logaxe" "{{.CURDIR}}/testdata/bin/"
+      - cmd: cp "$(which fakedata)" "{{.CURDIR}}/testdata/bin/"
       - cmd: docker build --tag logaxe-test .
       - cmd: >-
           docker ps -a | grep logaxe-test | grep -Po "^[0-9a-f]+"
           | xargs -i docker rm {}
       - cmd: >-
-          docker run --kernel-memory="500m" --memory-swap="400m"
-          --memory="300m" --name logaxe-test logaxe-test
-      - cmd: docker logs -f logaxe-test
+          docker run --kernel-memory="64m" --memory-swap="128m"
+          --memory="128m" --name logaxe-test logaxe-test
