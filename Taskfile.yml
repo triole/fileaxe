@@ -28,9 +28,6 @@ tasks:
 
   test:
     desc: run go tests
-    sources:
-      - "{{.SOURCE_FOLDER}}/*"
-    method: timestamp
     cmds:
       - cmd: >-
           for fol in {{.MODULES}}; do
