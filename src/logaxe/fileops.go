@@ -61,7 +61,16 @@ func (la LogAxe) Find(basedir string, rxFilter string, maxAge time.Duration, ref
 					fileList = append(fileList, fi)
 				} else {
 					if fi.Age > maxAge {
+						la.Lg.Debug(
+							"add file",
+							logseal.F{"file": fi.Path, "age": fi.Age},
+						)
 						fileList = append(fileList, fi)
+					} else {
+						la.Lg.Debug(
+							"skip file, younger than max age",
+							logseal.F{"file": fi.Path, "age": fi.Age},
+						)
 					}
 				}
 			}
