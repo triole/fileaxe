@@ -5,8 +5,6 @@ import (
 	"regexp"
 	"strconv"
 	"time"
-
-	"github.com/xhit/go-str2duration/v2"
 )
 
 func humanReadableFileSize(size float64) string {
@@ -49,9 +47,4 @@ func rxFind(rx string, content string) (r string) {
 func timestamp() string {
 	dt := time.Now()
 	return dt.Format("20060102t150405")
-}
-
-func str2dur(s string) (dur time.Duration, err error) {
-	dur, err = str2duration.ParseDuration(s)
-	return
 }

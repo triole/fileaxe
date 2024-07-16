@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"logaxe/src/conf"
 	"logaxe/src/logaxe"
 	"os"
 	"path"
@@ -21,8 +22,9 @@ func TestMainProcessor(t *testing.T) {
 	fol := "../testdata/tmp"
 	generateTestLogFiles(fol, 0, 9)
 
+	conf := conf.InitTestConf(fol, false)
 	lg = logseal.Init("info")
-	la := logaxe.InitLogAxe(fol, "\\.log$", "gz", "1s", false, false, lg)
+	la := logaxe.Init(conf, lg)
 	la.Run()
 
 	files := la.Find(fol, "\\.log$", 0, time.Now())
