@@ -7,7 +7,10 @@ import (
 )
 
 func (la LogAxe) Run() {
-	la.Lg.Info("Start logaxe", logseal.F{"conf": fmt.Sprintf("%+v", la)})
+	la.Lg.Info(
+		"Start logaxe",
+		logseal.F{"conf": fmt.Sprintf("%+v", la.Conf)},
+	)
 
 	if la.Conf.DryRun {
 		la.Lg.Info(" --- DRY RUN START ---")

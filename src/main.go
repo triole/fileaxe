@@ -20,6 +20,7 @@ func main() {
 		CLI.Format,
 		CLI.MaxAge,
 		CLI.Remove,
+		CLI.Yes,
 		CLI.SkipTruncate,
 		CLI.DryRun,
 		lg,

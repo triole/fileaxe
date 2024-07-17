@@ -15,6 +15,7 @@ type Conf struct {
 	TargetFormat string
 	MaxAge       tMaxAge
 	Remove       bool
+	Yes          bool
 	SkipTruncate bool
 	DryRun       bool
 }
@@ -24,7 +25,7 @@ type tMaxAge struct {
 	Duration time.Duration
 }
 
-func Init(fol, mat, frm, mxa string, rm, skt, dry bool, lg logseal.Logseal) (conf Conf) {
+func Init(fol, mat, frm, mxa string, rm, yes, skt, dry bool, lg logseal.Logseal) (conf Conf) {
 	conf.Now = time.Now()
 
 	abs, err := filepath.Abs(fol)
@@ -52,6 +53,7 @@ func Init(fol, mat, frm, mxa string, rm, skt, dry bool, lg logseal.Logseal) (con
 	}
 
 	conf.Remove = rm
+	conf.Yes = rm
 	conf.SkipTruncate = skt
 	conf.DryRun = dry
 	return
@@ -65,6 +67,7 @@ func InitTestConf(fol string, remove bool) (conf Conf) {
 		"gz",
 		"1s",
 		remove,
+		false,
 		false,
 		false,
 		lg,

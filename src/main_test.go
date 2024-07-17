@@ -20,7 +20,7 @@ import (
 
 func TestMainProcessor(t *testing.T) {
 	fol := "../testdata/tmp"
-	generateTestLogFiles(fol, 0, 9)
+	generateTestLogFiles(fol, 9)
 
 	conf := conf.InitTestConf(fol, false)
 	lg = logseal.Init("info")
@@ -47,7 +47,7 @@ func verifyFiles(files logaxe.FileInfos, hash string, amount int, t *testing.T) 
 	}
 }
 
-func generateTestLogFiles(fol string, i, j int) {
+func generateTestLogFiles(fol string, j int) {
 	os.MkdirAll(fol, 0755)
 	for i := 1; i <= j; i++ {
 		createFile(fmt.Sprintf(path.Join(fol, "log%v.log"), i))

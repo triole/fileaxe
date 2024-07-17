@@ -1,8 +1,6 @@
 package logaxe
 
 import (
-	"fmt"
-
 	"github.com/triole/logseal"
 )
 
@@ -33,12 +31,6 @@ func (la LogAxe) compress() {
 				la.Conf.MaxAge.Duration, la.Conf.Now,
 			)
 			for _, fil := range compressedLogs {
-				la.Lg.Info(
-					"remove file", logseal.F{
-						"path": fil.Path,
-						"age":  fil.Age,
-					},
-				)
 				if !la.Conf.DryRun {
 					la.rm(fil.Path)
 				}
@@ -54,7 +46,16 @@ func (la LogAxe) remove() {
 			la.Conf.MaxAge.Duration, la.Conf.Now,
 		)
 		for _, fil := range files {
-			fmt.Printf("%+v\n", fil)
+			if !la.Conf.DryRun {
+				if askForConfirmation(fil.Path) {
+					la.rm(fil.Path)
+				}
+			} else {
+				la.Lg.Info(
+					"dry run, might have removed file",
+					logseal.F{"path": fil.Path},
+				)
+			}
 		}
 	} else {
 		la.Lg.Info("nothing to do, remove mode requires a max age definition, use --max-age or -m")

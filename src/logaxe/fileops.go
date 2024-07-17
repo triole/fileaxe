@@ -119,9 +119,19 @@ func (la LogAxe) truncate(filename string) error {
 }
 
 func (la LogAxe) rm(filepath string) {
-	err := os.Remove(filepath)
-	la.Lg.IfErrError(
-		"can not delete file",
-		logseal.F{"path": filepath, "error": err},
-	)
+	if la.Conf.DryRun {
+		la.Lg.Info(
+			"dry run, would have removed file",
+			logseal.F{"path": filepath},
+		)
+	} else {
+		err := os.Remove(filepath)
+		if err == nil {
+			la.Lg.Info("file removed", logseal.F{"path": filepath})
+		}
+		la.Lg.IfErrError(
+			"can not delete file",
+			logseal.F{"path": filepath, "error": err},
+		)
+	}
 }
