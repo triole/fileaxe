@@ -14,7 +14,7 @@ Compress and truncate files that are older than x. Or simply delete them. Can be
 
 ```go mdox-exec="r -h"
 
-go axing logs
+if files are older than x, compress and truncate or simply delete them
 
 Arguments:
   [<folder>]    folder to process, positional arg required
