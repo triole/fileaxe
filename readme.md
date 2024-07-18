@@ -1,4 +1,4 @@
-# Logaxe ![build](https://github.com/triole/logaxe/actions/workflows/build.yaml/badge.svg)
+# Fileaxe ![build](https://github.com/triole/fileaxe/actions/workflows/build.yaml/badge.svg)
 
 <!--- mdtoc: toc begin -->
 
@@ -8,9 +8,7 @@
 
 ## Synopsis
 
-Go axing logs, my dear. Because I don't like log rotate. A cronjob must suffice for rotating log files.
-
-Still I little experimental I must admit.
+Compress and truncate files that are older than x. Or simply delete them. Can be used as logrotate replacement by just adding a cronjob. Kind of experimental.
 
 ## Help
 
@@ -28,6 +26,9 @@ Flags:
                                   default keeps all, use with duration like i.e.
                                   90m, 12h, 4d, 2w
   -f, --format="gz"               compressed target archive format
+      --remove                    remove matching files instead of compressing
+                                  them
+      --yes                       assume yes on remove affirmation query
   -l, --log-file="/dev/stdout"    log file
       --log-level="info"          log level
       --log-no-colors             disable output colours, print plain text
