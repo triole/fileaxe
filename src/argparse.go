@@ -15,9 +15,9 @@ import (
 var (
 	// BUILDTAGS are injected ld flags during build
 	BUILDTAGS      string
-	appName        = "logaxe"
-	appDescription = "go axing logs"
-	appMainversion = "0.2"
+	appName        = "fileaxe"
+	appDescription = "if files are older than x, compress and truncate or simply delete them"
+	appMainversion = "0.3"
 )
 
 var CLI struct {
