@@ -22,7 +22,7 @@ var (
 
 var CLI struct {
 	Folder       string `help:"folder to process, positional arg required" arg:"" optional:""`
-	Matcher      string `help:"regex matcher for file detection" short:"r" default:"\.log$"`
+	Matcher      string `help:"regex matcher for file detection" short:"r" default:"\\.log$"`
 	MaxAge       string `help:"remove compressed log files older than x, default keeps all, use with duration like i.e. 90m, 12h, 4d, 2w" short:"m" default:"0"`
 	Format       string `help:"compressed target archive format" short:"f" default:"gz" enum:"snappy,gz,xz"`
 	Remove       bool   `help:"remove matching files instead of compressing them"`
