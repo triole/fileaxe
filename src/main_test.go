@@ -4,11 +4,11 @@ import (
 	"crypto/md5"
 	"crypto/sha1"
 	"encoding/hex"
+	"fileaxe/src/conf"
+	"fileaxe/src/fileaxe"
 	"fmt"
 	"io"
 	"log"
-	"logaxe/src/conf"
-	"logaxe/src/logaxe"
 	"os"
 	"path"
 	"strconv"
@@ -24,7 +24,7 @@ func TestMainProcessor(t *testing.T) {
 
 	conf := conf.InitTestConf(fol, false)
 	lg = logseal.Init("info")
-	la := logaxe.Init(conf, lg)
+	la := fileaxe.Init(conf, lg)
 	la.Run()
 
 	files := la.Find(fol, "\\.log$", 0, time.Now())
@@ -34,7 +34,7 @@ func TestMainProcessor(t *testing.T) {
 	// verifyFiles(files, "0e93baf81315ce74e7484d374d550179", 9, t)
 }
 
-func verifyFiles(files logaxe.FileInfos, hash string, amount int, t *testing.T) {
+func verifyFiles(files fileaxe.FileInfos, hash string, amount int, t *testing.T) {
 
 	if len(files) != amount {
 		t.Errorf("test error, amount of files wrong: %d != %d", len(files), amount)

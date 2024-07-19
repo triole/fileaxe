@@ -1,8 +1,8 @@
 package main
 
 import (
-	"logaxe/src/conf"
-	"logaxe/src/logaxe"
+	"fileaxe/src/conf"
+	"fileaxe/src/fileaxe"
 
 	"github.com/triole/logseal"
 )
@@ -26,6 +26,6 @@ func main() {
 		lg,
 	)
 
-	la := logaxe.Init(conf, lg)
+	la := fileaxe.Init(conf, lg)
 	la.Run()
 }

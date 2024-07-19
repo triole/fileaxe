@@ -1,4 +1,4 @@
-package logaxe
+package fileaxe
 
 import (
 	"context"

@@ -1,7 +1,7 @@
-package logaxe
+package fileaxe
 
 import (
-	"logaxe/src/conf"
+	"fileaxe/src/conf"
 
 	"github.com/triole/logseal"
 )

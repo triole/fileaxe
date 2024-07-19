@@ -1,11 +1,11 @@
-module logaxe
+module fileaxe
 
-go 1.20
+go 1.22.5
 
 require (
-	github.com/alecthomas/kong v0.7.1
+	github.com/alecthomas/kong v0.9.0
 	github.com/mholt/archiver/v4 v4.0.0-alpha.8
-	github.com/triole/logseal v0.0.0-20230322064239-e1f2dfe8027a
+	github.com/triole/logseal v0.0.0-20240105053125-57d1f8179998
 	github.com/xhit/go-str2duration/v2 v2.1.0
 )
 
@@ -19,7 +19,7 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/klauspost/compress v1.16.4 // indirect
+	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/klauspost/pgzip v1.2.5 // indirect
 	github.com/nwaples/rardecode/v2 v2.0.0-beta.2 // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
