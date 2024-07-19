@@ -47,8 +47,12 @@ func (la LogAxe) remove() {
 		)
 		for _, fil := range files {
 			if !la.Conf.DryRun {
-				if askForConfirmation(fil.Path) {
+				if la.Conf.Yes {
 					la.rm(fil.Path)
+				} else {
+					if askForConfirmation(fil.Path) {
+						la.rm(fil.Path)
+					}
 				}
 			} else {
 				la.Lg.Info(
