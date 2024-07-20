@@ -6,9 +6,8 @@ import (
 	"github.com/triole/logseal"
 )
 
-func (fa FileAxe) list() {
-	logFiles := fa.Find(fa.Conf.Folder, fa.Conf.Matcher, fa.Conf.MaxAge, fa.Conf.Now)
-	for _, el := range logFiles {
+func (fa FileAxe) list(fileList FileInfos) {
+	for _, el := range fileList {
 		if fa.Conf.Ls.Plain {
 			fmt.Printf("%s\n", el.Path)
 		} else {
@@ -20,13 +19,12 @@ func (fa FileAxe) list() {
 	}
 }
 
-func (fa FileAxe) rotate() {
-	logFiles := fa.Find(fa.Conf.Folder, fa.Conf.Matcher, 0, fa.Conf.Now)
-	for _, fil := range logFiles {
-		tar := fa.makeZipArchiveFilenameAndDetectionScheme(fil.Path)
-		fa.Lg.Trace("make file name and detection scheme",
+func (fa FileAxe) rotate(fileList FileInfos) {
+	for _, fil := range fileList {
+		tar := fa.makeCompressionTargetFileName(fil.Path)
+		fa.Lg.Trace("make target file name",
 			logseal.F{
-				"source": fil.Path, "target": tar, "detection_scheme": tar.DetectionScheme,
+				"source": fil.Path, "target": tar,
 			},
 		)
 
@@ -38,46 +36,26 @@ func (fa FileAxe) rotate() {
 				logseal.F{"file": fil, "error": err},
 			)
 		} else {
-			fa.Lg.Debug("skip truncate")
-		}
-
-		if fa.Conf.MaxAge > 0 {
-			compressedLogs := fa.Find(
-				fa.Conf.Folder, tar.DetectionScheme,
-				fa.Conf.MaxAge, fa.Conf.Now,
-			)
-			for _, fil := range compressedLogs {
-				if !fa.Conf.DryRun {
-					fa.rm(fil.Path)
-				}
-			}
+			fa.Lg.Debug("skip truncate", logseal.F{"file": fil})
 		}
 	}
 }
 
-func (fa FileAxe) remove() {
-	if fa.Conf.MaxAge > 0 {
-		files := fa.Find(
-			fa.Conf.Folder, fa.Conf.Matcher,
-			fa.Conf.MaxAge, fa.Conf.Now,
-		)
-		for _, fil := range files {
-			if !fa.Conf.DryRun {
-				if fa.Conf.Remove.Yes {
-					fa.rm(fil.Path)
-				} else {
-					if askForConfirmation(fil.Path) {
-						fa.rm(fil.Path)
-					}
-				}
+func (fa FileAxe) remove(fileList FileInfos) {
+	for _, fil := range fileList {
+		if !fa.Conf.DryRun {
+			if fa.Conf.Remove.Yes {
+				fa.rm(fil.Path)
 			} else {
-				fa.Lg.Info(
-					"dry run, might have removed file",
-					logseal.F{"path": fil.Path},
-				)
+				if askForConfirmation(fil.Path) {
+					fa.rm(fil.Path)
+				}
 			}
+		} else {
+			fa.Lg.Info(
+				"dry run, might have removed file",
+				logseal.F{"path": fil.Path},
+			)
 		}
-	} else {
-		fa.Lg.Info("nothing to do, remove mode requires a max age definition, use --max-age or -m")
 	}
 }

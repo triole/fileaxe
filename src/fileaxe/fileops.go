@@ -114,7 +114,7 @@ func (fa FileAxe) fileInfo(path string, refTime time.Time) (fi FileInfo) {
 }
 
 func (fa FileAxe) truncate(filename string) error {
-	fa.Lg.Info("truncate", logseal.F{"file": filename})
+	fa.Lg.Info(fa.Conf.MsgPrefix+"truncate", logseal.F{"file": filename})
 	if !fa.Conf.DryRun {
 		f, err := os.OpenFile(filename, os.O_TRUNC, 0664)
 		if err != nil {

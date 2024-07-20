@@ -8,30 +8,21 @@ import (
 
 func (fa FileAxe) Run() {
 	if !fa.Conf.Ls.Plain {
-		fa.Lg.Info(
+		fa.Lg.Debug(
 			"start fileaxe",
 			logseal.F{
 				"conf": fmt.Sprintf("%+v", fa.Conf),
 			},
 		)
-
-		if fa.Conf.DryRun {
-			fa.Lg.Info(" --- DRY RUN START ---")
-		}
 	}
 
+	fileList := fa.Find(fa.Conf.Folder, fa.Conf.Matcher, fa.Conf.MaxAge, fa.Conf.Now)
 	switch fa.Conf.Action {
 	case "ls":
-		fa.list()
+		fa.list(fileList)
 	case "rotate":
-		fa.rotate()
+		fa.rotate(fileList)
 	case "remove":
-		fa.remove()
-	}
-
-	if !fa.Conf.Ls.Plain {
-		if fa.Conf.DryRun {
-			fa.Lg.Info(" --- DRY RUN END ---")
-		}
+		fa.remove(fileList)
 	}
 }

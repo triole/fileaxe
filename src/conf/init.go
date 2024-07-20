@@ -34,7 +34,9 @@ func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
 		logseal.F{"string": maxAgeArg, "error": err},
 	)
 	conf.DryRun = getcli(cli, "DryRun").(bool)
-
+	if conf.DryRun {
+		conf.MsgPrefix = "(dry run) "
+	}
 	conf.Action = getcli(cli, "SubCommand").(string)
 	conf.Ls.Plain = getcli(cli, "Ls.Plain").(bool)
 	conf.Remove.Yes = getcli(cli, "Remove.Yes").(bool)

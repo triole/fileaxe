@@ -3,7 +3,7 @@ package fileaxe
 import (
 	"context"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -11,15 +11,7 @@ import (
 	"github.com/triole/logseal"
 )
 
-type tTarget struct {
-	Folder          string
-	FullPath        string
-	BaseName        string
-	ShortName       string
-	DetectionScheme string
-}
-
-func (fa FileAxe) compressFile(sourceFile FileInfo, target tTarget) (err error) {
+func (fa FileAxe) compressFile(sourceFile FileInfo, target string) (err error) {
 	start := time.Now()
 
 	format := archiver.CompressedArchive{
@@ -41,10 +33,10 @@ func (fa FileAxe) compressFile(sourceFile FileInfo, target tTarget) (err error) 
 			Archival:    archiver.Tar{},
 		}
 	}
-
-	fa.Lg.Info("compress file", logseal.F{
-		"file": sourceFile.Path,
-		"size": sourceFile.SizeHR,
+	fa.Lg.Info(fa.Conf.MsgPrefix+"compress file", logseal.F{
+		"file":   sourceFile.Path,
+		"size":   sourceFile.SizeHR,
+		"target": target,
 	})
 
 	sourceFilesArr := []string{sourceFile.Path}
@@ -54,11 +46,11 @@ func (fa FileAxe) compressFile(sourceFile FileInfo, target tTarget) (err error) 
 		elapsed := end.Sub(start)
 
 		if err == nil {
-			taInfos := fa.fileInfo(target.FullPath, time.Now())
+			taInfos := fa.fileInfo(target, time.Now())
 			fa.Lg.Info(
 				"compression done",
 				logseal.F{
-					"file": target.FullPath, "duration": elapsed,
+					"file": target, "duration": elapsed,
 					"size": taInfos.SizeHR,
 				},
 			)
@@ -74,11 +66,11 @@ func (fa FileAxe) compressFile(sourceFile FileInfo, target tTarget) (err error) 
 	return
 }
 
-func (fa FileAxe) runCompression(sources []string, target tTarget, format archiver.CompressedArchive) (err error) {
+func (fa FileAxe) runCompression(sources []string, target string, format archiver.CompressedArchive) (err error) {
 	var files []archiver.File
 	fileMap := make(map[string]string)
 	for _, fil := range sources {
-		fileMap[fil] = target.BaseName
+		fileMap[fil] = filepath.Base(target)
 	}
 
 	files, err = archiver.FilesFromDisk(nil, fileMap)
@@ -90,7 +82,7 @@ func (fa FileAxe) runCompression(sources []string, target tTarget, format archiv
 		return err
 	}
 
-	out, err := os.Create(target.FullPath)
+	out, err := os.Create(target)
 	if err != nil {
 		fa.Lg.Error(
 			"can not create file",
@@ -111,17 +103,12 @@ func (fa FileAxe) runCompression(sources []string, target tTarget, format archiv
 	return nil
 }
 
-func (fa FileAxe) makeZipArchiveFilenameAndDetectionScheme(fn string) (tar tTarget) {
-	tar.Folder = rxFind(".*\\/", fn)
-	base := rxFind("[^/]+$", fn)
-	base = rxFind(".*?\\.", base)
-	base = strings.TrimSuffix(base, ".")
-	tar.BaseName = base + "_" + timestamp() + ".log"
-	tar.ShortName = tar.BaseName + "." + fa.Conf.Rotate.CompressionFormat
-	tar.DetectionScheme = path.Join(
-		tar.Folder,
-		base+"_[0-2][0-9]{3}[0-1][0-9][0-3][0-9]t[0-2][0-9][0-5][0-9][0-5][0-9]\\.log\\."+fa.Conf.Rotate.CompressionFormat+"$",
+func (fa FileAxe) makeCompressionTargetFileName(fn string) (tar string) {
+	cleanBase := rxReplaceAllString(filepath.Base(fn), "[^A-Za-z0-9_\\-]", "_")
+	noext := strings.TrimSuffix(cleanBase, filepath.Ext(fn))
+
+	tar = filepath.Join(
+		filepath.Dir(fn), noext+"_"+timestamp()+"."+fa.Conf.Rotate.CompressionFormat,
 	)
-	tar.FullPath = path.Join(tar.Folder, tar.ShortName)
 	return
 }

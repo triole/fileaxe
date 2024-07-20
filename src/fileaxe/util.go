@@ -38,9 +38,9 @@ func round(val float64, roundOn float64, places int) (newVal float64) {
 	return
 }
 
-func rxFind(rx string, content string) (r string) {
-	temp, _ := regexp.Compile(rx)
-	r = temp.FindString(content)
+func rxReplaceAllString(basestring, regex, newstring string) (r string) {
+	rx := regexp.MustCompile(regex)
+	r = rx.ReplaceAllString(basestring, newstring)
 	return
 }
 
