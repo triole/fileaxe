@@ -37,7 +37,7 @@ var CLI struct {
 	Rotate struct {
 		Format       string `help:"compression format, if files are not removed" short:"g" default:"gz" enum:"snappy,gz,xz"`
 		SkipTruncate bool   `help:"skip file truncation, don't empty compressed log files" short:"k"`
-	} `cmd:"" help:"rotate matching files, compress them and truncate everything older than max age"`
+	} `cmd:"" help:"rotate matching files, compress and truncate after successful compression"`
 
 	Remove struct {
 		Yes bool `help:"assume yes on remove affirmation query"`

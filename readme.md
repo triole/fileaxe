@@ -34,8 +34,8 @@ Flags:
 
 Commands:
   ls        list files matching the criteria
-  rotate    rotate matching files, compress them and truncate everything older
-            than max age
+  rotate    rotate matching files, compress and truncate after successful
+            compression
   remove    remove matching files older than max age
 
 Run "fileaxe <command> --help" for more information on a command.
