@@ -7,15 +7,17 @@ import (
 )
 
 func (fa FileAxe) Run() {
-	fa.Lg.Info(
-		"Start fileaxe",
-		logseal.F{
-			"conf": fmt.Sprintf("%+v", fa.Conf),
-		},
-	)
+	if !fa.Conf.Ls.Plain {
+		fa.Lg.Info(
+			"start fileaxe",
+			logseal.F{
+				"conf": fmt.Sprintf("%+v", fa.Conf),
+			},
+		)
 
-	if fa.Conf.DryRun {
-		fa.Lg.Info(" --- DRY RUN START ---")
+		if fa.Conf.DryRun {
+			fa.Lg.Info(" --- DRY RUN START ---")
+		}
 	}
 
 	switch fa.Conf.Action {
@@ -27,7 +29,9 @@ func (fa FileAxe) Run() {
 		fa.remove()
 	}
 
-	if fa.Conf.DryRun {
-		fa.Lg.Info(" --- DRY RUN END ---")
+	if !fa.Conf.Ls.Plain {
+		if fa.Conf.DryRun {
+			fa.Lg.Info(" --- DRY RUN END ---")
+		}
 	}
 }

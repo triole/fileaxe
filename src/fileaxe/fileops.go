@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/triole/logseal"
@@ -28,11 +29,19 @@ func (arr FileInfos) Len() int {
 }
 
 func (arr FileInfos) Less(i, j int) bool {
-	return arr[i].Path < arr[j].Path
+	si := makeSortIndex(arr[i])
+	sj := makeSortIndex(arr[j])
+	return si < sj
 }
 
 func (arr FileInfos) Swap(i, j int) {
 	arr[i], arr[j] = arr[j], arr[i]
+}
+
+func makeSortIndex(fi FileInfo) (r string) {
+	r = fmt.Sprintf("%06d", len(strings.Split(fi.Path, string(os.PathSeparator))))
+	r += fi.Path
+	return
 }
 
 func (fa FileAxe) Find(basedir string, rxFilter string, maxAge time.Duration, refTime time.Time) (fileList FileInfos) {

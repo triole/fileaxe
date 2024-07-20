@@ -9,7 +9,14 @@ import (
 func (fa FileAxe) list() {
 	logFiles := fa.Find(fa.Conf.Folder, fa.Conf.Matcher, 0, fa.Conf.Now)
 	for _, el := range logFiles {
-		fmt.Printf("%+v\n", el.Path)
+		if fa.Conf.Ls.Plain {
+			fmt.Printf("%s\n", el.Path)
+		} else {
+			fa.Lg.Info(
+				el.Path,
+				logseal.F{"age": el.Age, "lastmod": el.LastMod},
+			)
+		}
 	}
 }
 
