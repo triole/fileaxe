@@ -6,13 +6,13 @@ import (
 	"github.com/triole/logseal"
 )
 
-type LogAxe struct {
+type FileAxe struct {
 	Conf conf.Conf
 	Lg   logseal.Logseal
 }
 
-func Init(conf conf.Conf, lg logseal.Logseal) (la LogAxe) {
-	la.Conf = conf
-	la.Lg = lg
+func Init(conf conf.Conf, lg logseal.Logseal) (fa FileAxe) {
+	fa.Conf = conf
+	fa.Lg = lg
 	return
 }

@@ -6,28 +6,28 @@ import (
 	"github.com/triole/logseal"
 )
 
-func (la LogAxe) Run() {
-	la.Lg.Info(
+func (fa FileAxe) Run() {
+	fa.Lg.Info(
 		"Start fileaxe",
 		logseal.F{
-			"conf": fmt.Sprintf("%+v", la.Conf),
+			"conf": fmt.Sprintf("%+v", fa.Conf),
 		},
 	)
 
-	if la.Conf.DryRun {
-		la.Lg.Info(" --- DRY RUN START ---")
+	if fa.Conf.DryRun {
+		fa.Lg.Info(" --- DRY RUN START ---")
 	}
 
-	switch la.Conf.Action {
+	switch fa.Conf.Action {
 	case "ls":
-		la.list()
+		fa.list()
 	case "rotate":
-		la.rotate()
+		fa.rotate()
 	case "remove":
-		la.remove()
+		fa.remove()
 	}
 
-	if la.Conf.DryRun {
-		la.Lg.Info(" --- DRY RUN END ---")
+	if fa.Conf.DryRun {
+		fa.Lg.Info(" --- DRY RUN END ---")
 	}
 }
