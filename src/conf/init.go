@@ -75,5 +75,6 @@ func InitTestConf(subcommand, fol string) (conf Conf) {
 	conf.Folder = "../testdata/tmp"
 	conf.Matcher = ".*"
 	conf.MaxAge = 0
+	conf.Rotate.CompressionFormat = "gz"
 	return
 }
