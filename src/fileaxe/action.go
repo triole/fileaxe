@@ -7,7 +7,7 @@ import (
 )
 
 func (fa FileAxe) list() {
-	logFiles := fa.Find(fa.Conf.Folder, fa.Conf.Matcher, 0, fa.Conf.Now)
+	logFiles := fa.Find(fa.Conf.Folder, fa.Conf.Matcher, fa.Conf.MaxAge, fa.Conf.Now)
 	for _, el := range logFiles {
 		if fa.Conf.Ls.Plain {
 			fmt.Printf("%s\n", el.Path)
