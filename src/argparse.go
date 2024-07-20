@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -16,24 +14,34 @@ var (
 	// BUILDTAGS are injected ld flags during build
 	BUILDTAGS      string
 	appName        = "fileaxe"
-	appDescription = "if files are older than x, compress and truncate or simply delete them"
-	appMainversion = "0.3"
+	appDescription = "find files matching criteria and do something with them"
+	appMainversion = "0.4"
 )
 
 var CLI struct {
-	Folder       string `help:"folder to process, positional arg required" arg:"" optional:""`
-	Matcher      string `help:"regex matcher for file detection" short:"r" default:"\\.log$"`
-	MaxAge       string `help:"remove compressed log files older than x, default keeps all, use with duration like i.e. 90m, 12h, 4d, 2w" short:"m" default:"0"`
-	Format       string `help:"compressed target archive format" short:"f" default:"gz" enum:"snappy,gz,xz"`
-	Remove       bool   `help:"remove matching files instead of compressing them"`
-	Yes          bool   `help:"assume yes on remove affirmation query"`
-	LogFile      string `help:"log file" short:"l" default:"/dev/stdout"`
-	LogLevel     string `help:"log level" default:"info" enum:"trace,debug,info,error,fatal"`
-	LogNoColors  bool   `help:"disable output colours, print plain text"`
-	LogJSON      bool   `help:"enable json log, instead of text one"`
-	SkipTruncate bool   `help:"skip file truncation, don't empty compressed log files" short:"k"`
-	DryRun       bool   `help:"dry run, just print don't do" short:"n"`
-	VersionFlag  bool   `help:"display version" short:"V"`
+	SubCommand  string `kong:"-"`
+	Folder      string `help:"folder to process, default is current directory" short:"f" default:"${curdir}"`
+	Matcher     string `help:"regex matcher for file detection" short:"m" default:"\\..*$"`
+	MaxAge      string `help:"max age of files to consider, determined by last modified date, use with duration like i.e. 90m, 12h, 4d, 2w" short:"x" default:"0"`
+	LogFile     string `help:"log file" default:"/dev/stdout"`
+	LogLevel    string `help:"log level" default:"info" enum:"trace,debug,info,error,fatal"`
+	LogNoColors bool   `help:"disable output colours, print plain text"`
+	LogJSON     bool   `help:"enable json log, instead of text one"`
+	DryRun      bool   `help:"dry run, just print don't do" short:"n"`
+	VersionFlag bool   `help:"display version" short:"V"`
+
+	Ls struct {
+		Plain bool `help:"print plain list, file names only" short:"p"`
+	} `cmd:"" help:"list files matching the criteria"`
+
+	Rotate struct {
+		Format       string `help:"compression format, if files are not removed" short:"g" default:"gz" enum:"snappy,gz,xz"`
+		SkipTruncate bool   `help:"skip file truncation, don't empty compressed log files" short:"k"`
+	} `cmd:"" help:"rotate matching files, compress them and truncate everything older than max age"`
+
+	Remove struct {
+		Yes bool `help:"assume yes on remove affirmation query"`
+	} `cmd:"" help:"remove matching files older than max age"`
 }
 
 func parseArgs() {
@@ -50,18 +58,23 @@ func parseArgs() {
 		}),
 		kong.Vars{
 			"curdir": curdir,
-			"config": path.Join(getBindir(), appName+".toml"),
 		},
 	)
+	switch ctx.Command() {
+	case "ls":
+		CLI.SubCommand = "ls"
+	case "rotate":
+		CLI.SubCommand = "rotate"
+	case "remove":
+		CLI.SubCommand = "remove"
+	default:
+		panic(ctx.Command())
+	}
 	_ = ctx.Run()
 
 	if CLI.VersionFlag {
 		printBuildTags(BUILDTAGS)
 		os.Exit(0)
-	}
-	if CLI.Folder == "" {
-		fmt.Printf("%s\n", "[ERROR] positional arg required, please pass folder name")
-		os.Exit(1)
 	}
 	// ctx.FatalIfErrorf(err)
 }
@@ -93,13 +106,4 @@ func printBuildTags(buildtags string) {
 		fmt.Printf("%"+strconv.Itoa(maxlen)+"s\t%s\n", el.Key, el.Val)
 	}
 	fmt.Printf("\n")
-}
-
-func getBindir() (s string) {
-	ex, err := os.Executable()
-	if err != nil {
-		panic(err)
-	}
-	s = filepath.Dir(ex)
-	return
 }

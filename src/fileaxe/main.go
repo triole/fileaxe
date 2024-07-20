@@ -8,18 +8,23 @@ import (
 
 func (la LogAxe) Run() {
 	la.Lg.Info(
-		"Start logaxe",
-		logseal.F{"conf": fmt.Sprintf("%+v", la.Conf)},
+		"Start fileaxe",
+		logseal.F{
+			"conf": fmt.Sprintf("%+v", la.Conf),
+		},
 	)
 
 	if la.Conf.DryRun {
 		la.Lg.Info(" --- DRY RUN START ---")
 	}
 
-	if la.Conf.Remove {
+	switch la.Conf.Action {
+	case "ls":
+		la.list()
+	case "rotate":
+		la.rotate()
+	case "remove":
 		la.remove()
-	} else {
-		la.compress()
 	}
 
 	if la.Conf.DryRun {

@@ -1,34 +1,20 @@
 package conf
 
 import (
+	"fmt"
 	"path/filepath"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/triole/logseal"
 	str2duration "github.com/xhit/go-str2duration/v2"
 )
 
-type Conf struct {
-	Now          time.Time
-	Folder       string
-	Matcher      string
-	TargetFormat string
-	MaxAge       tMaxAge
-	Remove       bool
-	Yes          bool
-	SkipTruncate bool
-	DryRun       bool
-}
-
-type tMaxAge struct {
-	String   string
-	Duration time.Duration
-}
-
-func Init(fol, mat, frm, mxa string, rm, yes, skt, dry bool, lg logseal.Logseal) (conf Conf) {
+func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
 	conf.Now = time.Now()
 
-	abs, err := filepath.Abs(fol)
+	abs, err := filepath.Abs(getcli(cli, "Folder").(string))
 	lg.IfErrFatal(
 		"absolute file path creation failed", logseal.F{
 			"error": err,
@@ -39,38 +25,53 @@ func Init(fol, mat, frm, mxa string, rm, yes, skt, dry bool, lg logseal.Logseal)
 		conf.Folder = abs
 	}
 
-	conf.Matcher = mat
-	conf.TargetFormat = frm
-	conf.MaxAge.String = mxa
+	conf.Matcher = getcli(cli, "Matcher").(string)
+	maxAgeArg := getcli(cli, "MaxAge").(string)
 
-	dur, err := str2duration.ParseDuration(mxa)
+	conf.MaxAge, err = str2duration.ParseDuration(maxAgeArg)
 	lg.IfErrFatal(
 		"can not parse max age arg",
-		logseal.F{"string": mxa, "error": err},
+		logseal.F{"string": maxAgeArg, "error": err},
 	)
-	if err == nil {
-		conf.MaxAge.Duration = dur
-	}
+	conf.DryRun = getcli(cli, "DryRun").(bool)
 
-	conf.Remove = rm
-	conf.Yes = rm
-	conf.SkipTruncate = skt
-	conf.DryRun = dry
+	conf.Action = getcli(cli, "SubCommand").(string)
+	conf.Ls.Plain = getcli(cli, "Ls.Plain").(bool)
+	conf.Remove.Yes = getcli(cli, "Remove.Yes").(bool)
+	conf.Rotate.CompressionFormat = getcli(cli, "Rotate.Format").(string)
+	conf.Rotate.SkipTruncate = getcli(cli, "Rotate.SkipTruncate").(bool)
 	return
 }
 
-func InitTestConf(fol string, remove bool) (conf Conf) {
-	lg := logseal.Init()
-	conf = Init(
-		fol,
-		"\\.log$",
-		"gz",
-		"1s",
-		remove,
-		false,
-		false,
-		false,
-		lg,
-	)
+func getcli(cli interface{}, keypath string) (r interface{}) {
+	key := strings.Split(keypath, ".")
+	val := reflect.ValueOf(cli)
+	typ := val.Type()
+
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		fieldType := typ.Field(i)
+
+		if fieldType.Name == key[0] {
+			r = field.Interface()
+			if len(key) > 1 {
+				return getcli(r, key[1])
+			}
+			if fieldType.Type.Name() == "" {
+				fmt.Printf("%+v\n", field.Interface())
+				r = true
+			} else {
+				r = field.Interface()
+			}
+		}
+	}
+	return
+}
+
+func InitTestConf(subcommand, fol string) (conf Conf) {
+	conf.Action = subcommand
+	conf.Folder = "../testdata/tmp"
+	conf.Matcher = ".*"
+	conf.MaxAge = 0
 	return
 }

@@ -22,7 +22,7 @@ func TestMainProcessor(t *testing.T) {
 	fol := "../testdata/tmp"
 	generateTestLogFiles(fol, 9)
 
-	conf := conf.InitTestConf(fol, false)
+	conf := conf.InitTestConf("rotate", fol)
 	lg = logseal.Init("info")
 	la := fileaxe.Init(conf, lg)
 	la.Run()

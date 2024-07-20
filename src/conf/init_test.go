@@ -1,13 +1,11 @@
 package conf
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestInit(t *testing.T) {
-	conf := InitTestConf("../testdata/tmp", false)
-	fmt.Printf("%+v\n", conf)
+	_ = InitTestConf("rotate", "../testdata/tmp")
 	if true == false {
 		t.Errorf("An error occured.")
 	}

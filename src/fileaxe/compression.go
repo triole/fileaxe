@@ -29,13 +29,13 @@ func (la LogAxe) compressFile(sourceFile FileInfo, target tTarget) (err error) {
 		},
 		Archival: archiver.Tar{},
 	}
-	if la.Conf.TargetFormat == "snappy" {
+	if la.Conf.Rotate.CompressionFormat == "snappy" {
 		format = archiver.CompressedArchive{
 			Compression: archiver.Sz{},
 			Archival:    archiver.Tar{},
 		}
 	}
-	if la.Conf.TargetFormat == "xz" {
+	if la.Conf.Rotate.CompressionFormat == "xz" {
 		format = archiver.CompressedArchive{
 			Compression: archiver.Xz{},
 			Archival:    archiver.Tar{},
@@ -117,10 +117,10 @@ func (la LogAxe) makeZipArchiveFilenameAndDetectionScheme(fn string) (tar tTarge
 	base = rxFind(".*?\\.", base)
 	base = strings.TrimSuffix(base, ".")
 	tar.BaseName = base + "_" + timestamp() + ".log"
-	tar.ShortName = tar.BaseName + "." + la.Conf.TargetFormat
+	tar.ShortName = tar.BaseName + "." + la.Conf.Rotate.CompressionFormat
 	tar.DetectionScheme = path.Join(
 		tar.Folder,
-		base+"_[0-2][0-9]{3}[0-1][0-9][0-3][0-9]t[0-2][0-9][0-5][0-9][0-5][0-9]\\.log\\."+la.Conf.TargetFormat+"$",
+		base+"_[0-2][0-9]{3}[0-1][0-9][0-3][0-9]t[0-2][0-9][0-5][0-9][0-5][0-9]\\.log\\."+la.Conf.Rotate.CompressionFormat+"$",
 	)
 	tar.FullPath = path.Join(tar.Folder, tar.ShortName)
 	return
