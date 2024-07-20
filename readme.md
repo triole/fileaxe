@@ -1,10 +1,12 @@
 # Fileaxe ![build](https://github.com/triole/fileaxe/actions/workflows/build.yaml/badge.svg)
 
-<!--- mdtoc: toc begin -->
+<!-- toc -->
 
-1. [Synopsis](#synopsis)
-2. [Help](#help)
-3. [Disclaimer](#disclaimer)<!--- mdtoc: toc end -->
+- [Synopsis](#synopsis)
+- [Help](#help)
+- [Disclaimer](#disclaimer)
+
+<!-- /toc -->
 
 ## Synopsis
 
