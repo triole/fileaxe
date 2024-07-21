@@ -33,6 +33,9 @@ func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
 		"can not parse max age arg",
 		logseal.F{"string": maxAgeArg, "error": err},
 	)
+	conf.SortBy = getcli(cli, "SortBy").(string)
+	conf.Order = getcli(cli, "Order").(string)
+
 	conf.DryRun = getcli(cli, "DryRun").(bool)
 	if conf.DryRun {
 		conf.MsgPrefix = "(dry run) "

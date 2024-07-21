@@ -23,6 +23,8 @@ var CLI struct {
 	Folder      string `help:"folder to process, default is current directory" short:"f" default:"${curdir}"`
 	Matcher     string `help:"regex matcher for file detection" short:"m" default:"\\..*$"`
 	MaxAge      string `help:"max age of files to consider, determined by last modified date, use with duration like i.e. 90m, 12h, 4d, 2w" short:"x" default:"0"`
+	SortBy      string `help:"sort output list by, can be: age, path" short:"s" enum:"age,path" default:"path"`
+	Order       string `help:"sort order" short:"o" enum:"asc,desc" default:"asc"`
 	LogFile     string `help:"log file" default:"/dev/stdout"`
 	LogLevel    string `help:"log level" default:"info" enum:"trace,debug,info,error,fatal"`
 	LogNoColors bool   `help:"disable output colours, print plain text"`

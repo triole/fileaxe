@@ -8,6 +8,8 @@ type Conf struct {
 	Folder    string
 	Matcher   string
 	MaxAge    time.Duration
+	SortBy    string
+	Order     string
 	DryRun    bool
 	Ls        tLs
 	Remove    tRemove

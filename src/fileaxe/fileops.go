@@ -13,13 +13,14 @@ import (
 )
 
 type FileInfo struct {
-	Path    string
-	IsDir   bool
-	Size    int64
-	SizeHR  string
-	LastMod time.Time
-	Age     time.Duration
-	Err     error
+	Path      string
+	IsDir     bool
+	Size      int64
+	SizeHR    string
+	LastMod   time.Time
+	Age       time.Duration
+	SortIndex string
+	Err       error
 }
 
 type FileInfos []FileInfo
@@ -29,19 +30,21 @@ func (arr FileInfos) Len() int {
 }
 
 func (arr FileInfos) Less(i, j int) bool {
-	si := makeSortIndex(arr[i])
-	sj := makeSortIndex(arr[j])
-	return si < sj
+	return arr[i].SortIndex < arr[j].SortIndex
 }
 
 func (arr FileInfos) Swap(i, j int) {
 	arr[i], arr[j] = arr[j], arr[i]
 }
 
-func makeSortIndex(fi FileInfo) (r string) {
+func (fa FileAxe) makeSortIndexPath(fi FileInfo) (r string) {
 	r = fmt.Sprintf("%06d", len(strings.Split(fi.Path, string(os.PathSeparator))))
 	r += fi.Path
 	return
+}
+
+func (fa FileAxe) makeSortIndexAge(fi FileInfo) (r string) {
+	return fmt.Sprintf("%050d", fi.Age.Microseconds())
 }
 
 func (fa FileAxe) Find(basedir string, rxFilter string, maxAge time.Duration, refTime time.Time) (fileList FileInfos) {
@@ -66,6 +69,10 @@ func (fa FileAxe) Find(basedir string, rxFilter string, maxAge time.Duration, re
 		if rxf.MatchString(path) {
 			fi := fa.fileInfo(path, refTime)
 			if fi.Err == nil && !fi.IsDir {
+				fi.SortIndex = fa.makeSortIndexPath(fi)
+				if fa.Conf.SortBy == "age" {
+					fi.SortIndex = fa.makeSortIndexAge(fi)
+				}
 				if maxAge == 0 {
 					fileList = append(fileList, fi)
 				} else {
@@ -91,7 +98,12 @@ func (fa FileAxe) Find(basedir string, rxFilter string, maxAge time.Duration, re
 		"error":  err,
 	})
 	fa.Lg.Debug("found amount of files", logseal.F{"no": len(fileList)})
-	sort.Sort(FileInfos(fileList))
+
+	if fa.Conf.Order == "asc" {
+		sort.Sort(FileInfos(fileList))
+	} else {
+		sort.Sort(sort.Reverse(FileInfos(fileList)))
+	}
 	return
 }
 
