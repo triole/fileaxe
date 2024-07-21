@@ -27,6 +27,8 @@ Flags:
   -x, --max-age="0"               max age of files to consider, determined by
                                   last modified date, use with duration like
                                   i.e. 90m, 12h, 4d, 2w
+  -s, --sort-by="path"            sort output list by, can be: age, path
+  -o, --order="asc"               sort order
       --log-file="/dev/stdout"    log file
       --log-level="info"          log level
       --log-no-colors             disable output colours, print plain text
