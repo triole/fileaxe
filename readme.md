@@ -24,11 +24,14 @@ Flags:
                                   folder to process, default is current
                                   directory
   -m, --matcher="\\..*$"          regex matcher for file detection
-  -x, --max-age="0"               max age of files to consider, determined by
-                                  last modified date, use with duration like
-                                  i.e. 90m, 12h, 4d, 2w
-  -s, --sort-by="path"            sort output list by, can be: age, path
-  -o, --order="asc"               sort order
+  -r, --age-range="0,0"           age range of files to consider, takes a string
+                                  consisting of one or two comma separated
+                                  values, min age and max age, supports
+                                  durations like 90m, 12h, 4d, 2w; default
+                                  behaviour is that all files in a folder will
+                                  be considered, usage: -r 2h, -r 30m,2h
+  -s, --sort-by="age"             sort output list by, can be: age, path
+  -o, --order="desc"              sort order
       --log-file="/dev/stdout"    log file
       --log-level="info"          log level
       --log-no-colors             disable output colours, print plain text
@@ -40,6 +43,8 @@ Commands:
   ls        list files matching the criteria
   rotate    rotate matching files, compress and truncate after successful
             compression
+  move      move matching files older than max age, requires target folder
+            definition
   remove    remove matching files older than max age
 
 Run "fileaxe <command> --help" for more information on a command.
