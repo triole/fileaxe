@@ -27,7 +27,7 @@ func TestMainProcessor(t *testing.T) {
 	la := fileaxe.Init(conf, lg)
 	la.Run()
 
-	files := la.Find(fol, "\\.log$", 0, time.Now())
+	files := la.Find(fol, "\\.log$", 0, 0, time.Now())
 	verifyFiles(files, "d41d8cd98f00b204e9800998ecf8427e", 9, t)
 
 	// files = la.Find(fol, "\\.gz$", 0, time.Now())

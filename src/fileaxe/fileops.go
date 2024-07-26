@@ -48,10 +48,11 @@ func (fa FileAxe) makeSortIndexAge(fi FileInfo) (r string) {
 	return fmt.Sprintf("%050d", fi.Age.Microseconds())
 }
 
-func (fa FileAxe) Find(basedir string, rxFilter string, maxAge time.Duration, refTime time.Time) (fileList FileInfos) {
+func (fa FileAxe) Find(basedir string, rxFilter string, minAge, maxAge time.Duration, refTime time.Time) (fileList FileInfos) {
 	fa.Lg.Debug("detect files", logseal.F{
 		"folder":    basedir,
 		"rxmatcher": rxFilter,
+		"min_age":   minAge,
 		"max_age":   maxAge,
 	})
 	inf, err := os.Stat(basedir)
@@ -74,21 +75,18 @@ func (fa FileAxe) Find(basedir string, rxFilter string, maxAge time.Duration, re
 				if fa.Conf.SortBy == "path" {
 					fi.SortIndex = fa.makeSortIndexPath(fi)
 				}
-				if maxAge == 0 {
+				if fi.Age > minAge && maxAge == 0 ||
+					fi.Age > minAge && fi.Age < maxAge {
+					fa.Lg.Debug(
+						"add file",
+						logseal.F{"file": fi.Path, "age": fi.Age},
+					)
 					fileList = append(fileList, fi)
 				} else {
-					if fi.Age > maxAge {
-						fa.Lg.Debug(
-							"add file",
-							logseal.F{"file": fi.Path, "age": fi.Age},
-						)
-						fileList = append(fileList, fi)
-					} else {
-						fa.Lg.Debug(
-							"skip file, younger than max age",
-							logseal.F{"file": fi.Path, "age": fi.Age},
-						)
-					}
+					fa.Lg.Debug(
+						"skip file, age range does not fit",
+						logseal.F{"file": fi.Path, "age": fi.Age},
+					)
 				}
 			}
 		}

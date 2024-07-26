@@ -1,14 +1,12 @@
 package conf
 
 import (
-	"fmt"
 	"path/filepath"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/triole/logseal"
-	str2duration "github.com/xhit/go-str2duration/v2"
 )
 
 func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
@@ -26,13 +24,8 @@ func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
 	}
 
 	conf.Matcher = getcli(cli, "Matcher").(string)
-	maxAgeArg := getcli(cli, "MinAge").(string)
+	conf.MinAge, conf.MaxAge = parseRangeArg(getcli(cli, "AgeRange").(string), lg)
 
-	conf.MinAge, err = str2duration.ParseDuration(maxAgeArg)
-	lg.IfErrFatal(
-		"can not parse max age arg",
-		logseal.F{"string": maxAgeArg, "error": err},
-	)
 	conf.SortBy = getcli(cli, "SortBy").(string)
 	conf.Order = getcli(cli, "Order").(string)
 
@@ -64,7 +57,6 @@ func getcli(cli interface{}, keypath string) (r interface{}) {
 				return getcli(r, key[1])
 			}
 			if fieldType.Type.Name() == "" {
-				fmt.Printf("%+v\n", field.Interface())
 				r = true
 			} else {
 				r = field.Interface()

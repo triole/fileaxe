@@ -22,7 +22,7 @@ var CLI struct {
 	SubCommand  string `kong:"-"`
 	Folder      string `help:"folder to process, default is current directory" short:"f" default:"${curdir}"`
 	Matcher     string `help:"regex matcher for file detection" short:"m" default:"\\..*$"`
-	MinAge      string `help:"minimum age of files to consider, determined by last modified date, use with duration like i.e. 90m, 12h, 4d, 2w" default:"0"`
+	AgeRange    string `help:"age range of files to consider, takes a string consisting of one or two comma separated values, min age and max age, supports durations like 90m, 12h, 4d, 2w; default behaviour is that all files in a folder will be considered, usage: -r 2h, -r 30m,2h" short:"r" default:"0,0"`
 	SortBy      string `help:"sort output list by, can be: age, path" short:"s" enum:"age,path" default:"age"`
 	Order       string `help:"sort order" short:"o" enum:"asc,desc" default:"desc"`
 	LogFile     string `help:"log file" default:"/dev/stdout"`
@@ -66,18 +66,7 @@ func parseArgs() {
 			"curdir": curdir,
 		},
 	)
-	switch ctx.Command() {
-	case "ls":
-		CLI.SubCommand = "ls"
-	case "rotate":
-		CLI.SubCommand = "rotate"
-	case "move":
-		CLI.SubCommand = "move"
-	case "remove":
-		CLI.SubCommand = "remove"
-	default:
-		panic(ctx.Command())
-	}
+	CLI.SubCommand = ctx.Command()
 	_ = ctx.Run()
 
 	if CLI.VersionFlag {

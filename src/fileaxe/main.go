@@ -14,7 +14,10 @@ func (fa FileAxe) Run() {
 		)
 	}
 
-	fileList := fa.Find(fa.Conf.Folder, fa.Conf.Matcher, fa.Conf.MinAge, fa.Conf.Now)
+	fileList := fa.Find(
+		fa.Conf.Folder, fa.Conf.Matcher,
+		fa.Conf.MinAge, fa.Conf.MaxAge, fa.Conf.Now,
+	)
 	switch fa.Conf.Action {
 	case "ls":
 		fa.list(fileList)

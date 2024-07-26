@@ -8,6 +8,7 @@ type Conf struct {
 	Folder    string
 	Matcher   string
 	MinAge    time.Duration
+	MaxAge    time.Duration
 	SortBy    string
 	Order     string
 	DryRun    bool
