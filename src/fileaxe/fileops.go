@@ -2,6 +2,7 @@ package fileaxe
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -69,9 +70,9 @@ func (fa FileAxe) Find(basedir string, rxFilter string, maxAge time.Duration, re
 		if rxf.MatchString(path) {
 			fi := fa.fileInfo(path, refTime)
 			if fi.Err == nil && !fi.IsDir {
-				fi.SortIndex = fa.makeSortIndexPath(fi)
-				if fa.Conf.SortBy == "age" {
-					fi.SortIndex = fa.makeSortIndexAge(fi)
+				fi.SortIndex = fa.makeSortIndexAge(fi)
+				if fa.Conf.SortBy == "path" {
+					fi.SortIndex = fa.makeSortIndexPath(fi)
 				}
 				if maxAge == 0 {
 					fileList = append(fileList, fi)
@@ -125,27 +126,81 @@ func (fa FileAxe) fileInfo(path string, refTime time.Time) (fi FileInfo) {
 	return
 }
 
-func (fa FileAxe) truncate(filename string) error {
-	fa.Lg.Info(fa.Conf.MsgPrefix+"truncate", logseal.F{"file": filename})
+func (fa FileAxe) moveFile(fil FileInfo, destPath string) (err error) {
+	sourcePath := fil.Path
+	fa.Lg.Info(
+		fa.Conf.MsgPrefix+"move file",
+		logseal.F{
+			"source_age":       fil.Age,
+			"source_path":      sourcePath,
+			"destination_path": destPath},
+	)
 	if !fa.Conf.DryRun {
-		f, err := os.OpenFile(filename, os.O_TRUNC, 0664)
+		var inputFile *os.File
+		var outputFile *os.File
+		inputFile, err = os.Open(sourcePath)
 		if err != nil {
-			return fmt.Errorf("could not open file %q for truncation: %v", filename, err)
+			fa.Lg.Error(
+				"can not open source file",
+				logseal.F{
+					"source_age":       fil.Age,
+					"source_path":      sourcePath,
+					"destination_path": destPath},
+			)
+			return
 		}
-		if err = f.Close(); err != nil {
-			return fmt.Errorf("could not close file handler for %q after truncation: %v", filename, err)
+		defer inputFile.Close()
+
+		outputFile, err = os.Create(destPath)
+		if err != nil {
+			fa.Lg.Error(
+				"can not open destination file",
+				logseal.F{
+					"source_age":       fil.Age,
+					"source_path":      sourcePath,
+					"destination_path": destPath},
+			)
+			return
+		}
+		defer outputFile.Close()
+
+		fa.Lg.Info(
+			"copy file",
+			logseal.F{
+				"source_age":       fil.Age,
+				"source_path":      sourcePath,
+				"destination_path": destPath},
+		)
+		_, err = io.Copy(outputFile, inputFile)
+		if err != nil {
+			fa.Lg.Error(
+				"can not copy file",
+				logseal.F{
+					"source_age":       fil.Age,
+					"source_path":      sourcePath,
+					"destination_path": destPath},
+			)
+			return
+		}
+		inputFile.Close() // for Windows, close before remove
+
+		err = os.Remove(sourcePath)
+		if err != nil {
+			fa.Lg.Error(
+				"can not remove source file",
+				logseal.F{
+					"source_age":       fil.Age,
+					"source_path":      sourcePath,
+					"destination_path": destPath},
+			)
 		}
 	}
-	return nil
+	return err
 }
 
-func (fa FileAxe) rm(filepath string) {
-	if fa.Conf.DryRun {
-		fa.Lg.Info(
-			"dry run, would have removed file",
-			logseal.F{"path": filepath},
-		)
-	} else {
+func (fa FileAxe) removeFile(filepath string) {
+	fa.Lg.Info(fa.Conf.MsgPrefix+"remove file", logseal.F{"path": filepath})
+	if !fa.Conf.DryRun {
 		err := os.Remove(filepath)
 		if err == nil {
 			fa.Lg.Info("file removed", logseal.F{"path": filepath})
@@ -155,4 +210,18 @@ func (fa FileAxe) rm(filepath string) {
 			logseal.F{"path": filepath, "error": err},
 		)
 	}
+}
+
+func (fa FileAxe) truncateFile(filepath string) error {
+	fa.Lg.Info(fa.Conf.MsgPrefix+"truncate", logseal.F{"file": filepath})
+	if !fa.Conf.DryRun {
+		f, err := os.OpenFile(filepath, os.O_TRUNC, 0664)
+		if err != nil {
+			return fmt.Errorf("could not open file %q for truncation: %v", filepath, err)
+		}
+		if err = f.Close(); err != nil {
+			return fmt.Errorf("could not close file handler for %q after truncation: %v", filepath, err)
+		}
+	}
+	return nil
 }

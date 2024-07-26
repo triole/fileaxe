@@ -7,18 +7,23 @@ type Conf struct {
 	Now       time.Time
 	Folder    string
 	Matcher   string
-	MaxAge    time.Duration
+	MinAge    time.Duration
 	SortBy    string
 	Order     string
 	DryRun    bool
 	Ls        tLs
-	Remove    tRemove
 	Rotate    tRotate
+	Move      tMove
+	Remove    tRemove
 	MsgPrefix string
 }
 
 type tLs struct {
 	Plain bool
+}
+
+type tMove struct {
+	Target string
 }
 
 type tRemove struct {

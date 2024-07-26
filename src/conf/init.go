@@ -26,9 +26,9 @@ func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
 	}
 
 	conf.Matcher = getcli(cli, "Matcher").(string)
-	maxAgeArg := getcli(cli, "MaxAge").(string)
+	maxAgeArg := getcli(cli, "MinAge").(string)
 
-	conf.MaxAge, err = str2duration.ParseDuration(maxAgeArg)
+	conf.MinAge, err = str2duration.ParseDuration(maxAgeArg)
 	lg.IfErrFatal(
 		"can not parse max age arg",
 		logseal.F{"string": maxAgeArg, "error": err},
@@ -45,6 +45,7 @@ func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
 	conf.Remove.Yes = getcli(cli, "Remove.Yes").(bool)
 	conf.Rotate.CompressionFormat = getcli(cli, "Rotate.Format").(string)
 	conf.Rotate.SkipTruncate = getcli(cli, "Rotate.SkipTruncate").(bool)
+	conf.Move.Target = getcli(cli, "Move.Target").(string)
 	return
 }
 
@@ -77,7 +78,7 @@ func InitTestConf(subcommand, fol string) (conf Conf) {
 	conf.Action = subcommand
 	conf.Folder = "../testdata/tmp"
 	conf.Matcher = ".*"
-	conf.MaxAge = 0
+	conf.MinAge = 0
 	conf.Rotate.CompressionFormat = "gz"
 	return
 }

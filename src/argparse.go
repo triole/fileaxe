@@ -22,9 +22,9 @@ var CLI struct {
 	SubCommand  string `kong:"-"`
 	Folder      string `help:"folder to process, default is current directory" short:"f" default:"${curdir}"`
 	Matcher     string `help:"regex matcher for file detection" short:"m" default:"\\..*$"`
-	MaxAge      string `help:"max age of files to consider, determined by last modified date, use with duration like i.e. 90m, 12h, 4d, 2w" short:"x" default:"0"`
-	SortBy      string `help:"sort output list by, can be: age, path" short:"s" enum:"age,path" default:"path"`
-	Order       string `help:"sort order" short:"o" enum:"asc,desc" default:"asc"`
+	MinAge      string `help:"minimum age of files to consider, determined by last modified date, use with duration like i.e. 90m, 12h, 4d, 2w" default:"0"`
+	SortBy      string `help:"sort output list by, can be: age, path" short:"s" enum:"age,path" default:"age"`
+	Order       string `help:"sort order" short:"o" enum:"asc,desc" default:"desc"`
 	LogFile     string `help:"log file" default:"/dev/stdout"`
 	LogLevel    string `help:"log level" default:"info" enum:"trace,debug,info,error,fatal"`
 	LogNoColors bool   `help:"disable output colours, print plain text"`
@@ -40,6 +40,10 @@ var CLI struct {
 		Format       string `help:"compression format, if files are not removed" short:"g" default:"gz" enum:"snappy,gz,xz"`
 		SkipTruncate bool   `help:"skip file truncation, don't empty compressed log files" short:"k"`
 	} `cmd:"" help:"rotate matching files, compress and truncate after successful compression"`
+
+	Move struct {
+		Target string `help:"target to which the files are moved" short:"t" required:""`
+	} `cmd:"" help:"move matching files older than max age, requires target folder definition"`
 
 	Remove struct {
 		Yes bool `help:"assume yes on remove affirmation query"`
@@ -67,6 +71,8 @@ func parseArgs() {
 		CLI.SubCommand = "ls"
 	case "rotate":
 		CLI.SubCommand = "rotate"
+	case "move":
+		CLI.SubCommand = "move"
 	case "remove":
 		CLI.SubCommand = "remove"
 	default:
