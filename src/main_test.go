@@ -22,20 +22,20 @@ func TestMainProcessor(t *testing.T) {
 	fol := "../testdata/tmp"
 	generateTestLogFiles(fol, 9)
 
-	conf := conf.InitTestConf("rotate", fol)
-	lg = logseal.Init("info")
-	la := fileaxe.Init(conf, lg)
+	cnf := conf.InitTestConf("rt", fol, "\\.log$")
+	lg = logseal.Init("debug")
+	la := fileaxe.Init(cnf, lg)
 	la.Run()
 
 	files := la.Find(fol, "\\.log$", 0, 0, time.Now())
 	verifyFiles(files, "d41d8cd98f00b204e9800998ecf8427e", 9, t)
 
-	// files = la.Find(fol, "\\.gz$", 0, time.Now())
-	// verifyFiles(files, "0e93baf81315ce74e7484d374d550179", 9, t)
+	cnf = conf.InitTestConf("rm", fol, "\\.*$")
+	la = fileaxe.Init(cnf, lg)
+	la.Run()
 }
 
 func verifyFiles(files fileaxe.FileInfos, hash string, amount int, t *testing.T) {
-
 	if len(files) != amount {
 		t.Errorf("test error, amount of files wrong: %d != %d", len(files), amount)
 	}

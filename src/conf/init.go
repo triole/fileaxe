@@ -67,11 +67,14 @@ func getcli(cli interface{}, keypath string) (r interface{}) {
 	return
 }
 
-func InitTestConf(subcommand, fol string) (conf Conf) {
+func InitTestConf(subcommand, folder, matcher string) (conf Conf) {
+	conf.Now = time.Now()
 	conf.Action = subcommand
-	conf.Folder = "../testdata/tmp"
-	conf.Matcher = ".*"
+	conf.Folder = folder
+	conf.Matcher = matcher
 	conf.MinAge = 0
+	conf.MaxAge = 0
 	conf.Rotate.CompressionFormat = "gz"
+	conf.Remove.Yes = true
 	return
 }
