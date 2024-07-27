@@ -40,12 +40,12 @@ Flags:
   -V, --version-flag              display version
 
 Commands:
-  ls        list files matching the criteria
-  rotate    rotate matching files, compress and truncate after successful
-            compression
-  move      move matching files older than max age, requires target folder
-            definition
-  remove    remove matching files older than max age
+  ls    list files matching the criteria
+  rt    rotate matching files, compress and truncate after successful
+        compression
+  cp    copy matching files, requires target folder definition
+  mv    move matching files, requires target folder definition
+  rm    remove matching files
 
 Run "fileaxe <command> --help" for more information on a command.
 ```
