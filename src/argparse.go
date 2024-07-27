@@ -36,16 +36,16 @@ var CLI struct {
 		Plain bool `help:"print plain list, file names only" short:"p"`
 	} `cmd:"" help:"list files matching the criteria"`
 
-	Rotate struct {
+	Rt struct {
 		Format       string `help:"compression format, if files are not removed" short:"g" default:"gz" enum:"snappy,gz,xz"`
 		SkipTruncate bool   `help:"skip file truncation, don't empty compressed log files" short:"k"`
 	} `cmd:"" help:"rotate matching files, compress and truncate after successful compression"`
 
-	Move struct {
+	Mv struct {
 		Target string `help:"target to which the files are moved" short:"t" required:""`
 	} `cmd:"" help:"move matching files older than max age, requires target folder definition"`
 
-	Remove struct {
+	Rm struct {
 		Yes bool `help:"assume yes on remove affirmation query"`
 	} `cmd:"" help:"remove matching files older than max age"`
 }

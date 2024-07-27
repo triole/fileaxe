@@ -21,11 +21,11 @@ func (fa FileAxe) Run() {
 	switch fa.Conf.Action {
 	case "ls":
 		fa.list(fileList)
-	case "rotate":
+	case "rt":
 		fa.rotate(fileList)
-	case "move":
+	case "mv":
 		fa.move(fileList)
-	case "remove":
+	case "rm":
 		fa.remove(fileList)
 	}
 }
