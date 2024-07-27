@@ -41,13 +41,17 @@ var CLI struct {
 		SkipTruncate bool   `help:"skip file truncation, don't empty compressed log files" short:"k"`
 	} `cmd:"" help:"rotate matching files, compress and truncate after successful compression"`
 
+	Cp struct {
+		Target string `help:"target folder to which the files are copied" short:"t" required:""`
+	} `cmd:"" help:"copy matching files, requires target folder definition"`
+
 	Mv struct {
-		Target string `help:"target to which the files are moved" short:"t" required:""`
-	} `cmd:"" help:"move matching files older than max age, requires target folder definition"`
+		Target string `help:"target folder to which the files are moved" short:"t" required:""`
+	} `cmd:"" help:"move matching files, requires target folder definition"`
 
 	Rm struct {
 		Yes bool `help:"assume yes on remove affirmation query"`
-	} `cmd:"" help:"remove matching files older than max age"`
+	} `cmd:"" help:"remove matching files"`
 }
 
 func parseArgs() {

@@ -23,6 +23,8 @@ func (fa FileAxe) Run() {
 		fa.list(fileList)
 	case "rt":
 		fa.rotate(fileList)
+	case "cp":
+		fa.copy(fileList)
 	case "mv":
 		fa.move(fileList)
 	case "rm":

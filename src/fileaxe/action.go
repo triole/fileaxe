@@ -41,6 +41,12 @@ func (fa FileAxe) rotate(fileList FileInfos) {
 	}
 }
 
+func (fa FileAxe) copy(fileList FileInfos) {
+	for _, fil := range fileList {
+		fa.copyFile(fil, fa.Conf.Move.Target)
+	}
+}
+
 func (fa FileAxe) move(fileList FileInfos) {
 	for _, fil := range fileList {
 		fa.moveFile(fil, fa.Conf.Move.Target)
@@ -51,10 +57,10 @@ func (fa FileAxe) remove(fileList FileInfos) {
 	for _, fil := range fileList {
 		if !fa.Conf.DryRun {
 			if fa.Conf.Remove.Yes {
-				fa.removeFile(fil.Path)
+				fa.removeFile(fil)
 			} else {
 				if askForConfirmation(fil.Path) {
-					fa.removeFile(fil.Path)
+					fa.removeFile(fil)
 				}
 			}
 		} else {

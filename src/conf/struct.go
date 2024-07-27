@@ -14,7 +14,8 @@ type Conf struct {
 	DryRun    bool
 	Ls        tLs
 	Rotate    tRotate
-	Move      tMove
+	Copy      tCopyMove
+	Move      tCopyMove
 	Remove    tRemove
 	MsgPrefix string
 }
@@ -23,7 +24,7 @@ type tLs struct {
 	Plain bool
 }
 
-type tMove struct {
+type tCopyMove struct {
 	Target string
 }
 
