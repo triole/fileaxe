@@ -45,6 +45,7 @@ Commands:
         compression
   cp    copy matching files, requires target folder definition
   mv    move matching files, requires target folder definition
+  tn    truncate matching files
   rm    remove matching files
 
 Run "fileaxe <command> --help" for more information on a command.
