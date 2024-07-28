@@ -11,6 +11,6 @@ rcmd mkdir -p "${fol}"
 
 cd ${fol} && {
   rcmd dd if=/dev/random of=sample.log bs=2M count=1024
-  rcmd logaxe "${fol}"
+  rcmd fileaxe rt -f "${fol}"
   ls -lah
 }

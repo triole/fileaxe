@@ -52,7 +52,7 @@ tasks:
     desc: run docker to test memory issue inside
     dir: testdata
     cmds:
-      - cmd: cp "{{.CURDIR}}/build/linux_x86_64/logaxe" "{{.CURDIR}}/testdata/bin/"
+      - cmd: cp "{{.CURDIR}}/build/linux_x86_64/fileaxe" "{{.CURDIR}}/testdata/bin/"
       - cmd: cp "$(which fakedata)" "{{.CURDIR}}/testdata/bin/"
       - cmd: docker build --tag logaxe-test .
       - cmd: >-
