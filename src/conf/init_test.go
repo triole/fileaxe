@@ -5,7 +5,7 @@ import (
 )
 
 func TestInit(t *testing.T) {
-	_ = InitTestConf("rotate", "../testdata/tmp")
+	_ = InitTestConf("rotate", "../testdata/tmp", "\\.log$")
 	if true == false {
 		t.Errorf("An error occured.")
 	}

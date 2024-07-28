@@ -93,7 +93,8 @@ func (fa FileAxe) removeFile(fil FileInfo) (err error) {
 	return
 }
 
-func (fa FileAxe) truncateFile(filepath string) error {
+func (fa FileAxe) truncateFile(fil FileInfo) error {
+	filepath := fil.Path
 	fa.Lg.Info(fa.Conf.MsgPrefix+"truncate", logseal.F{"file": filepath})
 	if !fa.Conf.DryRun {
 		f, err := os.OpenFile(filepath, os.O_TRUNC, 0664)

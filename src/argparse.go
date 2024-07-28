@@ -49,6 +49,10 @@ var CLI struct {
 		Target string `help:"target folder to which the files are moved" short:"t" required:""`
 	} `cmd:"" help:"move matching files, requires target folder definition"`
 
+	Tn struct {
+		Yes bool `help:"assume yes on truncate affirmation query"`
+	} `cmd:"" help:"truncate matching files"`
+
 	Rm struct {
 		Yes bool `help:"assume yes on remove affirmation query"`
 	} `cmd:"" help:"remove matching files"`

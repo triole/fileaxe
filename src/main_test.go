@@ -30,7 +30,11 @@ func TestMainProcessor(t *testing.T) {
 	files := la.Find(fol, "\\.log$", 0, 0, time.Now())
 	verifyFiles(files, "d41d8cd98f00b204e9800998ecf8427e", 9, t)
 
-	cnf = conf.InitTestConf("rm", fol, "\\.*$")
+	cnf = conf.InitTestConf("tn", fol, "\\.log$")
+	la = fileaxe.Init(cnf, lg)
+	la.Run()
+
+	cnf = conf.InitTestConf("rm", fol, "\\.gz$")
 	la = fileaxe.Init(cnf, lg)
 	la.Run()
 }

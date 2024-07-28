@@ -30,7 +30,7 @@ func (fa FileAxe) rotate(fileList FileInfos) {
 
 		err := fa.compressFile(fil, tar)
 		if !fa.Conf.Rotate.SkipTruncate && err == nil {
-			err := fa.truncateFile(fil.Path)
+			err := fa.truncateFile(fil)
 			fa.Lg.IfErrError(
 				"can not truncate file",
 				logseal.F{"file": fil, "error": err},
@@ -50,6 +50,12 @@ func (fa FileAxe) copy(fileList FileInfos) {
 func (fa FileAxe) move(fileList FileInfos) {
 	for _, fil := range fileList {
 		fa.moveFile(fil, fa.Conf.Move.Target)
+	}
+}
+
+func (fa FileAxe) truncate(fileList FileInfos) {
+	for _, fil := range fileList {
+		fa.truncateFile(fil)
 	}
 }
 

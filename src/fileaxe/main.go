@@ -27,6 +27,8 @@ func (fa FileAxe) Run() {
 		fa.copy(fileList)
 	case "mv":
 		fa.move(fileList)
+	case "tn":
+		fa.truncate(fileList)
 	case "rm":
 		fa.remove(fileList)
 	}
