@@ -22,7 +22,7 @@ var CLI struct {
 	SubCommand  string `kong:"-"`
 	Folder      string `help:"folder to process, default is current directory" short:"f" default:"${curdir}"`
 	Matcher     string `help:"regex matcher for file detection" short:"m" default:"\\..*$"`
-	AgeRange    string `help:"age range of files to consider, takes a string of one or two comma separated values, min age and max age, supports durations like 90m, 12h, 4d, 2w; default behaviour is that all files in a folder will be considered, usage: -r 2h, -r 30m,2h" short:"r" default:"0,0"`
+	AgeRange    string `help:"age range of files to consider, string of one or two comma separated values (min age and max age), supports durations like 90m, 12h, 4d, 2w; default behaviour is that all files in a folder will be considered, usage: -r 2h, -r 30m,2h" short:"r" default:"0,0"`
 	SortBy      string `help:"sort output list by, can be: age, path" short:"s" enum:"age,path" default:"age"`
 	Order       string `help:"sort order" short:"o" enum:"asc,desc" default:"desc"`
 	LogFile     string `help:"log file" default:"/dev/stdout"`
@@ -37,7 +37,7 @@ var CLI struct {
 	} `cmd:"" help:"list files matching the criteria"`
 
 	Ex struct {
-		NumberRange string `help:"number of files to be considered as a valid match, can be string of one or two comma separated values, min and max number," short:"b" default:"1,0"`
+		NumberRange string `help:"number of files to be considered a valid match, check is successful if the number of matched files is in the expected range, arg is a string of one or two comma separated values (min and max), e.g. '1' requires exactly one match, '1,5' represents the range between 1 and 5, '1,0' is default meaning any number of matches higher than one will do" short:"b" default:"1,0"`
 	} `cmd:"" help:"check if file(s) exists, return non-zero exitcode if not"`
 
 	Rt struct {
