@@ -24,12 +24,12 @@ Flags:
                                   folder to process, default is current
                                   directory
   -m, --matcher="\\..*$"          regex matcher for file detection
-  -r, --age-range="0,0"           age range of files to consider, takes a string
-                                  consisting of one or two comma separated
-                                  values, min age and max age, supports
-                                  durations like 90m, 12h, 4d, 2w; default
-                                  behaviour is that all files in a folder will
-                                  be considered, usage: -r 2h, -r 30m,2h
+  -r, --age-range="0,0"           age range of files to consider, string of one
+                                  or two comma separated values (min age and
+                                  max age), supports durations like 90m, 12h,
+                                  4d, 2w; default behaviour is that all files
+                                  in a folder will be considered, usage: -r 2h,
+                                  -r 30m,2h
   -s, --sort-by="age"             sort output list by, can be: age, path
   -o, --order="desc"              sort order
       --log-file="/dev/stdout"    log file
@@ -41,6 +41,7 @@ Flags:
 
 Commands:
   ls    list files matching the criteria
+  ex    check if file(s) exists, return non-zero exitcode if not
   rt    rotate matching files, compress and truncate after successful
         compression
   cp    copy matching files, requires target folder definition
