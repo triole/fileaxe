@@ -10,7 +10,7 @@
 
 ## Synopsis
 
-Compress and truncate files that are older than x. Or simply delete them. Can be used as logrotate replacement by just adding a cronjob. Kind of experimental.
+A file finder that evaluates the last modified date. It cat list files in a certain time span or use them for different kinds of processing actions.
 
 ## Help
 
