@@ -16,6 +16,7 @@ type Conf struct {
 	Rotate    tRotate
 	Copy      tCopyMove
 	Move      tCopyMove
+	Truncate  tRemove
 	Remove    tRemove
 	MsgPrefix string
 }

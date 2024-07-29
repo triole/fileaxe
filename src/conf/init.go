@@ -40,6 +40,7 @@ func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
 	conf.Rotate.SkipTruncate = getcli(cli, "Rt.SkipTruncate").(bool)
 	conf.Copy.Target = getcli(cli, "Cp.Target").(string)
 	conf.Move.Target = getcli(cli, "Mv.Target").(string)
+	conf.Truncate.Yes = getcli(cli, "Tn.Yes").(bool)
 	return
 }
 

@@ -55,7 +55,13 @@ func (fa FileAxe) move(fileList FileInfos) {
 
 func (fa FileAxe) truncate(fileList FileInfos) {
 	for _, fil := range fileList {
-		fa.truncateFile(fil)
+		if fa.Conf.Truncate.Yes {
+			fa.truncateFile(fil)
+		} else {
+			if fa.askForConfirmation(fil.Path, "truncation") {
+				fa.truncateFile(fil)
+			}
+		}
 	}
 }
 
@@ -65,15 +71,10 @@ func (fa FileAxe) remove(fileList FileInfos) {
 			if fa.Conf.Remove.Yes {
 				fa.removeFile(fil)
 			} else {
-				if askForConfirmation(fil.Path) {
+				if fa.askForConfirmation(fil.Path, "removal") {
 					fa.removeFile(fil)
 				}
 			}
-		} else {
-			fa.Lg.Info(
-				"dry run, might have removed file",
-				logseal.F{"path": fil.Path},
-			)
 		}
 	}
 }

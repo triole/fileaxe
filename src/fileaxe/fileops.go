@@ -79,7 +79,10 @@ func (fa FileAxe) moveFile(fil FileInfo, destPath string) (err error) {
 
 func (fa FileAxe) removeFile(fil FileInfo) (err error) {
 	filepath := fil.Path
-	fa.Lg.Info(fa.Conf.MsgPrefix+"remove file", logseal.F{"path": filepath})
+	fa.Lg.Info(
+		fa.Conf.MsgPrefix+"remove file",
+		logseal.F{"file": filepath, "age": fil.Age},
+	)
 	if !fa.Conf.DryRun {
 		err = os.Remove(filepath)
 		if err == nil {
@@ -95,7 +98,10 @@ func (fa FileAxe) removeFile(fil FileInfo) (err error) {
 
 func (fa FileAxe) truncateFile(fil FileInfo) error {
 	filepath := fil.Path
-	fa.Lg.Info(fa.Conf.MsgPrefix+"truncate", logseal.F{"file": filepath})
+	fa.Lg.Info(
+		fa.Conf.MsgPrefix+"truncate",
+		logseal.F{"file": filepath, "age": fil.Age},
+	)
 	if !fa.Conf.DryRun {
 		f, err := os.OpenFile(filepath, os.O_TRUNC, 0664)
 		if err != nil {
