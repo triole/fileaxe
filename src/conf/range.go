@@ -8,7 +8,7 @@ import (
 	str2duration "github.com/xhit/go-str2duration/v2"
 )
 
-func parseRangeArg(s string, lg logseal.Logseal) (minAge, maxAge time.Duration) {
+func parseDurationRangeArg(s string, lg logseal.Logseal) (minAge, maxAge time.Duration) {
 	var err error
 	arr := strings.Split(s, ",")
 	minAge, err = str2duration.ParseDuration(arr[0])
