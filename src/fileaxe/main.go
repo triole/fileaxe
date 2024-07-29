@@ -21,6 +21,8 @@ func (fa FileAxe) Run() {
 	switch fa.Conf.Action {
 	case "ls":
 		fa.list(fileList)
+	case "ex":
+		fa.exists(fileList)
 	case "rt":
 		fa.rotate(fileList)
 	case "cp":

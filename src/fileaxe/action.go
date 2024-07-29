@@ -2,6 +2,7 @@ package fileaxe
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/triole/logseal"
 )
@@ -16,6 +17,23 @@ func (fa FileAxe) list(fileList FileInfos) {
 				logseal.F{"age": el.Age, "lastmod": el.LastMod},
 			)
 		}
+	}
+}
+
+func (fa FileAxe) exists(fileList FileInfos) {
+	match_no := len(fileList)
+	success := fa.isInRange(match_no, fa.Conf.Exists.MinNumber, fa.Conf.Exists.MaxNumber)
+	fa.Lg.Info(
+		"exists check results",
+		logseal.F{
+			"exp_min": fa.Conf.Exists.MinNumber,
+			"exp_max": fa.Conf.Exists.MaxNumber,
+			"no":      match_no,
+			"success": success,
+		},
+	)
+	if !success {
+		os.Exit(1)
 	}
 }
 

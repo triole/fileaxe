@@ -13,6 +13,7 @@ type Conf struct {
 	Order     string
 	DryRun    bool
 	Ls        tLs
+	Exists    tExists
 	Rotate    tRotate
 	Copy      tCopyMove
 	Move      tCopyMove
@@ -23,6 +24,11 @@ type Conf struct {
 
 type tLs struct {
 	Plain bool
+}
+
+type tExists struct {
+	MinNumber int
+	MaxNumber int
 }
 
 type tCopyMove struct {

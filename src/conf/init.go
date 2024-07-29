@@ -24,7 +24,9 @@ func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
 	}
 
 	conf.Matcher = getcli(cli, "Matcher").(string)
-	conf.MinAge, conf.MaxAge = parseDurationRangeArg(getcli(cli, "AgeRange").(string), lg)
+	conf.MinAge, conf.MaxAge = parseDurationRangeArg(
+		getcli(cli, "AgeRange").(string), lg,
+	)
 
 	conf.SortBy = getcli(cli, "SortBy").(string)
 	conf.Order = getcli(cli, "Order").(string)
@@ -35,6 +37,9 @@ func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
 	}
 	conf.Action = getcli(cli, "SubCommand").(string)
 	conf.Ls.Plain = getcli(cli, "Ls.Plain").(bool)
+	conf.Exists.MinNumber, conf.Exists.MaxNumber = parseNumberRangeArg(
+		getcli(cli, "Ex.NumberRange").(string), lg,
+	)
 	conf.Remove.Yes = getcli(cli, "Rm.Yes").(bool)
 	conf.Rotate.CompressionFormat = getcli(cli, "Rt.Format").(string)
 	conf.Rotate.SkipTruncate = getcli(cli, "Rt.SkipTruncate").(bool)
