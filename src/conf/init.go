@@ -82,5 +82,6 @@ func InitTestConf(subcommand, folder, matcher string) (conf Conf) {
 	conf.MaxAge = 0
 	conf.Rotate.CompressionFormat = "gz"
 	conf.Remove.Yes = true
+	conf.Truncate.Yes = true
 	return
 }
