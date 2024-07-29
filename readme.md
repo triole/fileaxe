@@ -1,4 +1,4 @@
-# Fileaxe ![build](https://github.com/triole/fileaxe/actions/workflows/build.yaml/badge.svg)
+# Fileaxe ![build](https://github.com/triole/fileaxe/actions/workflows/build.yaml/badge.svg) ![test](https://github.com/triole/fileaxe/actions/workflows/test.yaml/badge.svg)
 
 <!-- toc -->
 
