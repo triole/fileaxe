@@ -21,7 +21,7 @@ var (
 var CLI struct {
 	SubCommand  string `kong:"-"`
 	Folder      string `help:"folder to process, default is current directory" short:"f" default:"${curdir}"`
-	Matcher     string `help:"regex matcher for file detection" short:"m" default:"\\..*$"`
+	Matcher     string `help:"regex matcher for file detection, e.g. '\\..*$'" short:"m" default:".*"`
 	AgeRange    string `help:"age range of files to consider, string of one or two comma separated values (min age and max age), supports durations like 90m, 12h, 4d, 2w; default behaviour is that all files in a folder will be considered, usage: -r 2h, -r 30m,2h" short:"r" default:"0,0"`
 	SortBy      string `help:"sort output list by, can be: age, path" short:"s" enum:"age,path" default:"age"`
 	Order       string `help:"sort order" short:"o" enum:"asc,desc" default:"desc"`
