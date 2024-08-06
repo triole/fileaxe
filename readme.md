@@ -10,7 +10,7 @@
 
 ## Synopsis
 
-A file finder that evaluates the last modified date. It cat list files in a certain time span or use them for different kinds of processing actions.
+A file finder that takes the last modified date into consideration. It can list files in a certain time span or use them for different kinds of processing actions.
 
 ## Help
 
@@ -23,7 +23,7 @@ Flags:
   -f, --folder="/home/ole/rolling/golang/projects/fileaxe/src"
                                   folder to process, default is current
                                   directory
-  -m, --matcher="\\..*$"          regex matcher for file detection
+  -m, --matcher=".*"              regex matcher for file detection, e.g. '\..*$'
   -r, --age-range="0,0"           age range of files to consider, string of one
                                   or two comma separated values (min age and
                                   max age), supports durations like 90m, 12h,
