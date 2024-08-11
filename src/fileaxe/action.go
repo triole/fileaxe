@@ -23,6 +23,14 @@ func (fa FileAxe) list(fileList FileInfos) {
 func (fa FileAxe) exists(fileList FileInfos) {
 	match_no := len(fileList)
 	success := fa.isInRange(match_no, fa.Conf.Exists.MinNumber, fa.Conf.Exists.MaxNumber)
+	if match_no > 0 && fa.Conf.Exists.List {
+		for _, el := range fileList {
+			fa.Lg.Info(
+				el.Path,
+				logseal.F{"age": el.Age, "lastmod": el.LastMod},
+			)
+		}
+	}
 	fa.Lg.Info(
 		"exists check results",
 		logseal.F{

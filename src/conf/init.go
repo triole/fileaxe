@@ -40,6 +40,7 @@ func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
 	conf.Exists.MinNumber, conf.Exists.MaxNumber = parseNumberRangeArg(
 		getcli(cli, "Ex.NumberRange").(string), lg,
 	)
+	conf.Exists.List = getcli(cli, "Ex.List").(bool)
 	conf.Remove.Yes = getcli(cli, "Rm.Yes").(bool)
 	conf.Rotate.CompressionFormat = getcli(cli, "Rt.Format").(string)
 	conf.Rotate.SkipTruncate = getcli(cli, "Rt.SkipTruncate").(bool)

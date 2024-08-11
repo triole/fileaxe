@@ -38,6 +38,7 @@ var CLI struct {
 
 	Ex struct {
 		NumberRange string `help:"number of files to be considered a valid match, check is successful if the number of matched files is in the expected range, arg is a string of one or two comma separated values (min and max), e.g. '1' requires exactly one match, '1,5' represents the range between 1 and 5, '1,0' is default meaning any number of matches higher than one will do" short:"b" default:"1,0"`
+		List        bool   `help:"list all processed files" short:"l"`
 	} `cmd:"" help:"check if file(s) exists, return non-zero exitcode if not"`
 
 	Rt struct {

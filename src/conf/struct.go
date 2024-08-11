@@ -29,6 +29,7 @@ type tLs struct {
 type tExists struct {
 	MinNumber int
 	MaxNumber int
+	List      bool
 }
 
 type tCopyMove struct {
