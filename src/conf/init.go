@@ -42,6 +42,7 @@ func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
 	)
 	conf.Exists.List = getcli(cli, "Exists.List").(bool)
 	conf.Remove.Yes = getcli(cli, "Remove.Yes").(bool)
+	conf.Compress.CompressionFormat = getcli(cli, "Compress.Format").(string)
 	conf.Rotate.CompressionFormat = getcli(cli, "Rotate.Format").(string)
 	conf.Rotate.SkipTruncate = getcli(cli, "Rotate.SkipTruncate").(bool)
 	conf.Copy.Target = getcli(cli, "Copy.Target").(string)

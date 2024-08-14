@@ -103,12 +103,12 @@ func (fa FileAxe) runCompression(sources []string, target string, format archive
 	return nil
 }
 
-func (fa FileAxe) makeCompressionTargetFileName(fn string) (tar string) {
+func (fa FileAxe) makeCompressionTargetFileName(fn, compressionFormat string) (tar string) {
 	cleanBase := rxReplaceAllString(filepath.Base(fn), "[^A-Za-z0-9_\\-]", "_")
 	noext := strings.TrimSuffix(cleanBase, filepath.Ext(fn))
 
 	tar = filepath.Join(
-		filepath.Dir(fn), noext+"_"+timestamp()+"."+fa.Conf.Rotate.CompressionFormat,
+		filepath.Dir(fn), noext+"_"+timestamp()+"."+compressionFormat,
 	)
 	return
 }

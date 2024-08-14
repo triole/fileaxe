@@ -47,7 +47,7 @@ func (fa FileAxe) exists(fileList FileInfos) {
 
 func (fa FileAxe) compress(fileList FileInfos) {
 	for _, fil := range fileList {
-		tar := fa.makeCompressionTargetFileName(fil.Path)
+		tar := fa.makeCompressionTargetFileName(fil.Path, fa.Conf.Compress.CompressionFormat)
 		fa.Lg.Trace("make target file name",
 			logseal.F{
 				"source": fil.Path, "target": tar,
@@ -63,7 +63,7 @@ func (fa FileAxe) compress(fileList FileInfos) {
 
 func (fa FileAxe) rotate(fileList FileInfos) {
 	for _, fil := range fileList {
-		tar := fa.makeCompressionTargetFileName(fil.Path)
+		tar := fa.makeCompressionTargetFileName(fil.Path, fa.Conf.Compress.CompressionFormat)
 		fa.Lg.Trace("make target file name",
 			logseal.F{
 				"source": fil.Path, "target": tar,
