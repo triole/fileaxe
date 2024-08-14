@@ -32,33 +32,33 @@ var CLI struct {
 	DryRun      bool   `help:"dry run, just print don't do" short:"n"`
 	VersionFlag bool   `help:"display version" short:"V"`
 
-	Ls struct {
+	List struct {
 		Plain bool `help:"print plain list, file names only" short:"p"`
 	} `cmd:"" help:"list files matching the criteria"`
 
-	Ex struct {
+	Exists struct {
 		NumberRange string `help:"number of files to be considered a valid match, check is successful if the number of matched files is in the expected range, arg is a string of one or two comma separated values (min and max), e.g. '1' requires exactly one match, '1,5' represents the range between 1 and 5, '1,0' is default meaning any number of matches higher than one will do" short:"b" default:"1,0"`
 		List        bool   `help:"list all processed files" short:"l"`
 	} `cmd:"" help:"check if file(s) exists, return non-zero exitcode if not"`
 
-	Rt struct {
+	Rotate struct {
 		Format       string `help:"compression format, if files are not removed" short:"g" default:"gz" enum:"snappy,gz,xz"`
 		SkipTruncate bool   `help:"skip file truncation, don't empty compressed log files" short:"k"`
 	} `cmd:"" help:"rotate matching files, compress and truncate after successful compression"`
 
-	Cp struct {
+	Copy struct {
 		Target string `help:"target folder to which the files are copied" short:"t" required:""`
 	} `cmd:"" help:"copy matching files, requires target folder definition"`
 
-	Mv struct {
+	Move struct {
 		Target string `help:"target folder to which the files are moved" short:"t" required:""`
 	} `cmd:"" help:"move matching files, requires target folder definition"`
 
-	Tn struct {
+	Truncate struct {
 		Yes bool `help:"assume yes on truncate affirmation query"`
 	} `cmd:"" help:"truncate matching files"`
 
-	Rm struct {
+	Remove struct {
 		Yes bool `help:"assume yes on remove affirmation query"`
 	} `cmd:"" help:"remove matching files"`
 }
