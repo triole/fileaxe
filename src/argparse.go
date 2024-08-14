@@ -81,7 +81,7 @@ func parseArgs() {
 		}),
 		kong.Vars{
 			"curdir":             curdir,
-			"compressionFormats": "brotli,gz,lz4,snappy,xz",
+			"compressionFormats": "brotli,bz2,gz,lz4,snappy,xz",
 		},
 	)
 	CLI.SubCommand = ctx.Command()
