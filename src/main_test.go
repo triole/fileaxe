@@ -28,7 +28,7 @@ func TestMainProcessor(t *testing.T) {
 	la.Run()
 
 	files := la.Find(fol, "\\.log$", 0, 0, time.Now())
-	verifyFiles(files, "d41d8cd98f00b204e9800998ecf8427e", 9, t)
+	verifyFiles(files, "bbffcec3d7789bba6f11859be3edcb34", 9, t)
 
 	cnf = conf.InitTestConf("tn", fol, "\\.log$")
 	la = fileaxe.Init(cnf, lg)
