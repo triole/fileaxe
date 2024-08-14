@@ -2,7 +2,6 @@ package fileaxe
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -52,7 +51,6 @@ func (fa FileAxe) compressFile(sourceFile FileInfo, target, compressionFormat st
 			Archival:    archiver.Tar{},
 		}
 	}
-	fmt.Printf("%+v\n", format)
 	fa.Lg.Info(fa.Conf.MsgPrefix+"compress file", logseal.F{
 		"file":   sourceFile.Path,
 		"size":   sourceFile.SizeHR,
@@ -90,7 +88,7 @@ func (fa FileAxe) runCompression(sources []string, target string, format archive
 	var files []archiver.File
 	fileMap := make(map[string]string)
 	for _, fil := range sources {
-		fileMap[fil] = filepath.Base(target)
+		fileMap[fil] = filepath.Base(fil)
 	}
 
 	files, err = archiver.FilesFromDisk(nil, fileMap)
