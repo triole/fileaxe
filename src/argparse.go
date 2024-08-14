@@ -43,7 +43,7 @@ var CLI struct {
 
 	Compress struct {
 		Format string `help:"compression format, supports: ${compressionFormats}" short:"g" default:"gz" enum:"${compressionFormats}"`
-	} `cmd:"" help:"compress matching files, compress and truncate after successful compression"`
+	} `cmd:"" help:"compress matching files"`
 
 	Rotate struct {
 		Format       string `help:"compression format, if files are not removed, supports: ${compressionFormats}" short:"g" default:"gz" enum:"${compressionFormats}"`

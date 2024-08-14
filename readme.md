@@ -43,8 +43,7 @@ Flags:
 Commands:
   list        list files matching the criteria
   exists      check if file(s) exists, return non-zero exitcode if not
-  compress    compress matching files, compress and truncate after successful
-              compression
+  compress    compress matching files
   rotate      rotate matching files, compress and truncate after successful
               compression
   copy        copy matching files, requires target folder definition
