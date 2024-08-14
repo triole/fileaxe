@@ -19,19 +19,21 @@ func (fa FileAxe) Run() {
 		fa.Conf.MinAge, fa.Conf.MaxAge, fa.Conf.Now,
 	)
 	switch fa.Conf.Action {
-	case "ls":
+	case "list":
 		fa.list(fileList)
-	case "ex":
+	case "exists":
 		fa.exists(fileList)
-	case "rt":
+	case "compress":
+		fa.compress(fileList)
+	case "rotate":
 		fa.rotate(fileList)
-	case "cp":
+	case "copy":
 		fa.copy(fileList)
-	case "mv":
+	case "move":
 		fa.move(fileList)
-	case "tn":
+	case "truncate":
 		fa.truncate(fileList)
-	case "rm":
+	case "remove":
 		fa.remove(fileList)
 	}
 }

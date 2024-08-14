@@ -14,6 +14,7 @@ type Conf struct {
 	DryRun    bool
 	Ls        tLs
 	Exists    tExists
+	Compress  tCompress
 	Rotate    tRotate
 	Copy      tCopyMove
 	Move      tCopyMove
@@ -38,6 +39,10 @@ type tCopyMove struct {
 
 type tRemove struct {
 	Yes bool
+}
+
+type tCompress struct {
+	CompressionFormat string
 }
 
 type tRotate struct {

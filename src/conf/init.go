@@ -36,17 +36,17 @@ func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
 		conf.MsgPrefix = "(dry run) "
 	}
 	conf.Action = getcli(cli, "SubCommand").(string)
-	conf.Ls.Plain = getcli(cli, "Ls.Plain").(bool)
+	conf.Ls.Plain = getcli(cli, "List.Plain").(bool)
 	conf.Exists.MinNumber, conf.Exists.MaxNumber = parseNumberRangeArg(
-		getcli(cli, "Ex.NumberRange").(string), lg,
+		getcli(cli, "Exists.NumberRange").(string), lg,
 	)
-	conf.Exists.List = getcli(cli, "Ex.List").(bool)
-	conf.Remove.Yes = getcli(cli, "Rm.Yes").(bool)
-	conf.Rotate.CompressionFormat = getcli(cli, "Rt.Format").(string)
-	conf.Rotate.SkipTruncate = getcli(cli, "Rt.SkipTruncate").(bool)
-	conf.Copy.Target = getcli(cli, "Cp.Target").(string)
-	conf.Move.Target = getcli(cli, "Mv.Target").(string)
-	conf.Truncate.Yes = getcli(cli, "Tn.Yes").(bool)
+	conf.Exists.List = getcli(cli, "Exists.List").(bool)
+	conf.Remove.Yes = getcli(cli, "Remove.Yes").(bool)
+	conf.Rotate.CompressionFormat = getcli(cli, "Rotate.Format").(string)
+	conf.Rotate.SkipTruncate = getcli(cli, "Rotate.SkipTruncate").(bool)
+	conf.Copy.Target = getcli(cli, "Copy.Target").(string)
+	conf.Move.Target = getcli(cli, "Move.Target").(string)
+	conf.Truncate.Yes = getcli(cli, "Truncate.Yes").(bool)
 	return
 }
 
