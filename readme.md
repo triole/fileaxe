@@ -24,6 +24,7 @@ Flags:
                                   folder to process, default is current
                                   directory
   -m, --matcher=".*"              regex matcher for file detection, e.g. '\..*$'
+                                  or '\.yaml$
   -r, --age-range="0,0"           age range of files to consider, string of one
                                   or two comma separated values (min age and
                                   max age), supports durations like 90m, 12h,
@@ -40,14 +41,16 @@ Flags:
   -V, --version-flag              display version
 
 Commands:
-  ls    list files matching the criteria
-  ex    check if file(s) exists, return non-zero exitcode if not
-  rt    rotate matching files, compress and truncate after successful
-        compression
-  cp    copy matching files, requires target folder definition
-  mv    move matching files, requires target folder definition
-  tn    truncate matching files
-  rm    remove matching files
+  list        list files matching the criteria
+  exists      check if file(s) exists, return non-zero exitcode if not
+  compress    compress matching files, compress and truncate after successful
+              compression
+  rotate      rotate matching files, compress and truncate after successful
+              compression
+  copy        copy matching files, requires target folder definition
+  move        move matching files, requires target folder definition
+  truncate    truncate matching files
+  remove      remove matching files
 
 Run "fileaxe <command> --help" for more information on a command.
 ```
