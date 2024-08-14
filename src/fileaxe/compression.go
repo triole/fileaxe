@@ -22,6 +22,12 @@ func (fa FileAxe) compressFile(sourceFile FileInfo, target, compressionFormat st
 		},
 		Archival: archiver.Tar{},
 	}
+	if compressionFormat == "brotli" {
+		format = archiver.CompressedArchive{
+			Compression: archiver.Brotli{},
+			Archival:    archiver.Tar{},
+		}
+	}
 	if compressionFormat == "lz4" {
 		format = archiver.CompressedArchive{
 			Compression: archiver.Lz4{},
