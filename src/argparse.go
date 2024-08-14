@@ -42,11 +42,11 @@ var CLI struct {
 	} `cmd:"" help:"check if file(s) exists, return non-zero exitcode if not"`
 
 	Compress struct {
-		Format string `help:"compression format, if files are not removed" short:"g" default:"gz" enum:"snappy,gz,xz"`
-	} `cmd:"" help:"rotate matching files, compress and truncate after successful compression"`
+		Format string `help:"compression format, supports: ${compressionFormats}" short:"g" default:"gz" enum:"${compressionFormats}"`
+	} `cmd:"" help:"compress matching files, compress and truncate after successful compression"`
 
 	Rotate struct {
-		Format       string `help:"compression format, if files are not removed" short:"g" default:"gz" enum:"snappy,gz,xz"`
+		Format       string `help:"compression format, if files are not removed, supports: ${compressionFormats}" short:"g" default:"gz" enum:"${compressionFormats}"`
 		SkipTruncate bool   `help:"skip file truncation, don't empty compressed log files" short:"k"`
 	} `cmd:"" help:"rotate matching files, compress and truncate after successful compression"`
 
@@ -80,7 +80,8 @@ func parseArgs() {
 			FlagsLast:    false,
 		}),
 		kong.Vars{
-			"curdir": curdir,
+			"curdir":             curdir,
+			"compressionFormats": "gz,snappy,xz",
 		},
 	)
 	CLI.SubCommand = ctx.Command()
