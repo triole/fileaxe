@@ -2,6 +2,7 @@ package fileaxe
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,7 +12,7 @@ import (
 	"github.com/triole/logseal"
 )
 
-func (fa FileAxe) compressFile(sourceFile FileInfo, target string) (err error) {
+func (fa FileAxe) compressFile(sourceFile FileInfo, target, compressionFormat string) (err error) {
 	start := time.Now()
 
 	format := archiver.CompressedArchive{
@@ -21,18 +22,25 @@ func (fa FileAxe) compressFile(sourceFile FileInfo, target string) (err error) {
 		},
 		Archival: archiver.Tar{},
 	}
-	if fa.Conf.Rotate.CompressionFormat == "snappy" {
+	if compressionFormat == "lz4" {
+		format = archiver.CompressedArchive{
+			Compression: archiver.Lz4{},
+			Archival:    archiver.Tar{},
+		}
+	}
+	if compressionFormat == "snappy" {
 		format = archiver.CompressedArchive{
 			Compression: archiver.Sz{},
 			Archival:    archiver.Tar{},
 		}
 	}
-	if fa.Conf.Rotate.CompressionFormat == "xz" {
+	if compressionFormat == "xz" {
 		format = archiver.CompressedArchive{
 			Compression: archiver.Xz{},
 			Archival:    archiver.Tar{},
 		}
 	}
+	fmt.Printf("%+v\n", format)
 	fa.Lg.Info(fa.Conf.MsgPrefix+"compress file", logseal.F{
 		"file":   sourceFile.Path,
 		"size":   sourceFile.SizeHR,

@@ -53,7 +53,7 @@ func (fa FileAxe) compress(fileList FileInfos) {
 				"source": fil.Path, "target": tar,
 			},
 		)
-		err := fa.compressFile(fil, tar)
+		err := fa.compressFile(fil, tar, fa.Conf.Compress.CompressionFormat)
 		fa.Lg.IfErrError(
 			"can not truncate file",
 			logseal.F{"file": fil, "error": err},
@@ -70,7 +70,7 @@ func (fa FileAxe) rotate(fileList FileInfos) {
 			},
 		)
 
-		err := fa.compressFile(fil, tar)
+		err := fa.compressFile(fil, tar, fa.Conf.Compress.CompressionFormat)
 		if !fa.Conf.Rotate.SkipTruncate && err == nil {
 			err := fa.truncateFile(fil)
 			fa.Lg.IfErrError(
