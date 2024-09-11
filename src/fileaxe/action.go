@@ -12,7 +12,7 @@ func (fa FileAxe) list(fileList FileInfos) {
 		if fa.Conf.Ls.Plain {
 			fmt.Printf("%s\n", fil.Path)
 		} else {
-			fa.Lg.Info(fil.Path, fa.logFileInfo(fil))
+			fa.Lg.Info("list", fa.logFileInfo(fil))
 		}
 	}
 }
@@ -22,7 +22,7 @@ func (fa FileAxe) exists(fileList FileInfos) {
 	success := fa.isInRange(match_no, fa.Conf.Exists.MinNumber, fa.Conf.Exists.MaxNumber)
 	if match_no > 0 && fa.Conf.Exists.List {
 		for _, fil := range fileList {
-			fa.Lg.Info(fil.Path, fa.logFileInfo(fil))
+			fa.Lg.Info("list", fa.logFileInfo(fil))
 		}
 	}
 	fa.Lg.Info(
