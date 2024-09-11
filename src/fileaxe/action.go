@@ -8,14 +8,11 @@ import (
 )
 
 func (fa FileAxe) list(fileList FileInfos) {
-	for _, el := range fileList {
+	for _, fil := range fileList {
 		if fa.Conf.Ls.Plain {
-			fmt.Printf("%s\n", el.Path)
+			fmt.Printf("%s\n", fil.Path)
 		} else {
-			fa.Lg.Info(
-				el.Path,
-				logseal.F{"age": el.Age, "lastmod": el.LastMod},
-			)
+			fa.Lg.Info(fil.Path, fa.logFileInfo(fil))
 		}
 	}
 }
@@ -24,11 +21,8 @@ func (fa FileAxe) exists(fileList FileInfos) {
 	match_no := len(fileList)
 	success := fa.isInRange(match_no, fa.Conf.Exists.MinNumber, fa.Conf.Exists.MaxNumber)
 	if match_no > 0 && fa.Conf.Exists.List {
-		for _, el := range fileList {
-			fa.Lg.Info(
-				el.Path,
-				logseal.F{"age": el.Age, "lastmod": el.LastMod},
-			)
+		for _, fil := range fileList {
+			fa.Lg.Info(fil.Path, fa.logFileInfo(fil))
 		}
 	}
 	fa.Lg.Info(
@@ -117,6 +111,14 @@ func (fa FileAxe) remove(fileList FileInfos) {
 					fa.removeFile(fil)
 				}
 			}
+		} else {
+			fa.Lg.Info("dry run, would have removed", fa.logFileInfo(fil))
 		}
+	}
+}
+
+func (fa FileAxe) logFileInfo(fil FileInfo) logseal.F {
+	return logseal.F{
+		"file": fil.Path, "age": fil.Age,
 	}
 }

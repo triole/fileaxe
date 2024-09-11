@@ -78,37 +78,34 @@ func (fa FileAxe) moveFile(fil FileInfo, destPath string) (err error) {
 }
 
 func (fa FileAxe) removeFile(fil FileInfo) (err error) {
-	filepath := fil.Path
-	fa.Lg.Info(
-		fa.Conf.MsgPrefix+"remove file",
-		logseal.F{"file": filepath, "age": fil.Age},
-	)
+	fa.Lg.Info(fa.Conf.MsgPrefix+"remove file", fa.logFileInfo(fil))
 	if !fa.Conf.DryRun {
-		err = os.Remove(filepath)
+		err = os.Remove(fil.Path)
 		if err == nil {
-			fa.Lg.Info("file removed", logseal.F{"path": filepath})
+			fa.Lg.Info("file removed", fa.logFileInfo(fil))
 		}
 		fa.Lg.IfErrError(
 			"can not delete file",
-			logseal.F{"path": filepath, "error": err},
+			logseal.F{"path": fil.Path, "error": err},
 		)
 	}
 	return
 }
 
 func (fa FileAxe) truncateFile(fil FileInfo) error {
-	filepath := fil.Path
-	fa.Lg.Info(
-		fa.Conf.MsgPrefix+"truncate",
-		logseal.F{"file": filepath, "age": fil.Age},
-	)
+	fa.Lg.Info(fa.Conf.MsgPrefix+"truncate", fa.logFileInfo(fil))
 	if !fa.Conf.DryRun {
-		f, err := os.OpenFile(filepath, os.O_TRUNC, 0664)
+		f, err := os.OpenFile(fil.Path, os.O_TRUNC, 0664)
 		if err != nil {
-			return fmt.Errorf("could not open file %q for truncation: %v", filepath, err)
+			return fmt.Errorf(
+				"could not open file %q for truncation: %v", fil.Path, err,
+			)
 		}
 		if err = f.Close(); err != nil {
-			return fmt.Errorf("could not close file handler for %q after truncation: %v", filepath, err)
+			return fmt.Errorf(
+				"could not close file handler for %q after truncation: %v",
+				fil.Path, err,
+			)
 		}
 	}
 	return nil
