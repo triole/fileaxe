@@ -38,7 +38,6 @@ Flags:
       --log-no-colors             disable output colours, print plain text
       --log-json                  enable json log, instead of text one
   -n, --dry-run                   dry run, just print don't do
-  -V, --version-flag              display version
 
 Commands:
   list        list files matching the criteria
@@ -50,6 +49,7 @@ Commands:
   move        move matching files, requires target folder definition
   truncate    truncate matching files
   remove      remove matching files
+  version     display version
 
 Run "fileaxe <command> --help" for more information on a command.
 ```
