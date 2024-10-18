@@ -30,7 +30,6 @@ var CLI struct {
 	LogNoColors bool   `help:"disable output colours, print plain text"`
 	LogJSON     bool   `help:"enable json log, instead of text one"`
 	DryRun      bool   `help:"dry run, just print don't do" short:"n"`
-	VersionFlag bool   `help:"display version" short:"V"`
 
 	List struct {
 		Plain bool `help:"print plain list, file names only" short:"p"`
@@ -65,6 +64,8 @@ var CLI struct {
 	Remove struct {
 		Yes bool `help:"assume yes on remove affirmation query"`
 	} `cmd:"" help:"remove matching files"`
+
+	Version struct{} `cmd:"" help:"display version"`
 }
 
 func parseArgs() {
@@ -84,14 +85,14 @@ func parseArgs() {
 			"compressionFormats": "brotli,bz2,gz,lz4,snappy,xz",
 		},
 	)
-	CLI.SubCommand = ctx.Command()
 	_ = ctx.Run()
-
-	if CLI.VersionFlag {
+	if ctx.Command() == "version" {
 		printBuildTags(BUILDTAGS)
 		os.Exit(0)
 	}
 	// ctx.FatalIfErrorf(err)
+
+	CLI.SubCommand = ctx.Command()
 }
 
 type tPrinter []tPrinterEl
