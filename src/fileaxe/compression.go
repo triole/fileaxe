@@ -7,48 +7,48 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mholt/archiver/v4"
+	"github.com/mholt/archives"
 	"github.com/triole/logseal"
 )
 
 func (fa FileAxe) compressFile(sourceFile FileInfo, target, compressionFormat string) (err error) {
 	start := time.Now()
 
-	format := archiver.CompressedArchive{
-		Compression: archiver.Gz{
+	format := archives.CompressedArchive{
+		Compression: archives.Gz{
 			CompressionLevel: 9,
 			Multithreaded:    true,
 		},
-		Archival: archiver.Tar{},
+		Archival: archives.Tar{},
 	}
 	if compressionFormat == "brotli" {
-		format = archiver.CompressedArchive{
-			Compression: archiver.Brotli{},
-			Archival:    archiver.Tar{},
+		format = archives.CompressedArchive{
+			Compression: archives.Brotli{},
+			Archival:    archives.Tar{},
 		}
 	}
 	if compressionFormat == "bz2" {
-		format = archiver.CompressedArchive{
-			Compression: archiver.Bz2{},
-			Archival:    archiver.Tar{},
+		format = archives.CompressedArchive{
+			Compression: archives.Bz2{},
+			Archival:    archives.Tar{},
 		}
 	}
 	if compressionFormat == "lz4" {
-		format = archiver.CompressedArchive{
-			Compression: archiver.Lz4{},
-			Archival:    archiver.Tar{},
+		format = archives.CompressedArchive{
+			Compression: archives.Lz4{},
+			Archival:    archives.Tar{},
 		}
 	}
 	if compressionFormat == "snappy" {
-		format = archiver.CompressedArchive{
-			Compression: archiver.Sz{},
-			Archival:    archiver.Tar{},
+		format = archives.CompressedArchive{
+			Compression: archives.Sz{},
+			Archival:    archives.Tar{},
 		}
 	}
 	if compressionFormat == "xz" {
-		format = archiver.CompressedArchive{
-			Compression: archiver.Xz{},
-			Archival:    archiver.Tar{},
+		format = archives.CompressedArchive{
+			Compression: archives.Xz{},
+			Archival:    archives.Tar{},
 		}
 	}
 	fa.Lg.Info(fa.Conf.MsgPrefix+"compress file", logseal.F{
@@ -84,14 +84,15 @@ func (fa FileAxe) compressFile(sourceFile FileInfo, target, compressionFormat st
 	return
 }
 
-func (fa FileAxe) runCompression(sources []string, target string, format archiver.CompressedArchive) (err error) {
-	var files []archiver.File
+func (fa FileAxe) runCompression(sources []string, target string, format archives.CompressedArchive) (err error) {
+	ctx := context.TODO()
+	var files []archives.FileInfo
 	fileMap := make(map[string]string)
 	for _, fil := range sources {
 		fileMap[fil] = filepath.Base(fil)
 	}
 
-	files, err = archiver.FilesFromDisk(nil, fileMap)
+	files, err = archives.FilesFromDisk(ctx, nil, fileMap)
 	if err != nil {
 		fa.Lg.Error(
 			"mapping files failed",

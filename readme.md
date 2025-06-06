@@ -56,4 +56,4 @@ Run "fileaxe <command> --help" for more information on a command.
 
 ## Disclaimer
 
-Warning. Use this software at your own risk. I may not be hold responsible for any data loss, starving your kittens or losing the bling bling powerpoint presentation you made to impress human resources with the efficiency of your employee's performance.
+Warning. Use this software at your own risk. I may not be hold responsible for any data loss, starving your kittens or losing the bling bling power point presentation you made to impress human resources with the efficiency of your employee's performance.
