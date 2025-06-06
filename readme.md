@@ -10,7 +10,7 @@
 
 ## Synopsis
 
-A file finder that takes the last modified date into consideration. It can list files in a certain time span or use them for different kinds of processing actions.
+This file tool gracefully incorporates the last modified date, offering a refined way to utilize your files. You can effortlessly select files within a specific timeframe or leverage their creation history for diverse applications and workflows.
 
 ## Help
 
@@ -56,4 +56,4 @@ Run "fileaxe <command> --help" for more information on a command.
 
 ## Disclaimer
 
-Warning. Use this software at your own risk. I may not be hold responsible for any data loss, starving your kittens or losing the bling bling power point presentation you made to impress human resources with the efficiency of your employee's performance.
+CAUTION! Engaging with this software is akin to wrestling a badger wearing a tutu – unpredictable and potentially shimmering with existential dread. This software is provided “as is.” The user assumes all risks of data loss, system errors, or any other adverse consequences. The provider accepts no liability for any resulting damages.
