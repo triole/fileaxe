@@ -85,8 +85,8 @@ func (fa FileAxe) compressFile(sourceFile FileInfo, target, compressionFormat st
 }
 
 func (fa FileAxe) runCompression(sources []string, target string, format archives.CompressedArchive) (err error) {
-	ctx := context.TODO()
 	var files []archives.FileInfo
+	ctx := context.TODO()
 	fileMap := make(map[string]string)
 	for _, fil := range sources {
 		fileMap[fil] = filepath.Base(fil)
@@ -111,7 +111,7 @@ func (fa FileAxe) runCompression(sources []string, target string, format archive
 	}
 	defer out.Close()
 
-	err = format.Archive(context.Background(), out, files)
+	err = format.Archive(ctx, out, files)
 	if err != nil {
 		fa.Lg.Error(
 			"archiving files failed",
