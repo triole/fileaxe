@@ -10,7 +10,7 @@
 
 ## Synopsis
 
-This file tool gracefully incorporates the last modified date, offering a refined way to utilize your files. You can effortlessly select files within a specific timeframe or leverage their creation history for diverse applications and workflows.
+Fileaxe is a powerful command-line tool designed to help you find, filter, and manipulate files based on various criteria. It allows you to search for files within specific time ranges, apply regular expression matching, and perform bulk operations like copying, moving, compressing, or removing files. This file tool gracefully incorporates the last modified date, offering a refined way to utilize your files. You can effortlessly select files within a specific timeframe or leverage their creation history for diverse applications and workflows. Whether you're managing large file collections, automating file organization tasks, or need to quickly access files from a specific time period, Fileaxe provides an efficient solution.
 
 ## Help
 
