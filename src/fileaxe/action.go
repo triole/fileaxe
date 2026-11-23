@@ -79,7 +79,7 @@ func (fa FileAxe) rotate(fileList FileInfos) {
 
 func (fa FileAxe) copy(fileList FileInfos) {
 	for _, fil := range fileList {
-		fa.copyFile(fil, fa.Conf.Move.Target)
+		fa.copyFile(fil, fa.Conf.Copy.Target)
 	}
 }
 
