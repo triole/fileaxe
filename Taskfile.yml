@@ -26,6 +26,12 @@ tasks:
           export SOURCE_FOLDER={{.SOURCE_FOLDER}}
           curl -sL https://raw.githubusercontent.com/triole/ghwfe/master/sh/go_build.sh | bash
 
+  up:
+    desc: upgrade go dependencies
+    cmds:
+      - cmd: go get -u ./...
+      - cmd: go mod tidy
+
   test:
     desc: run go tests
     cmds:
