@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"fileaxe/src/conf"
 	"fileaxe/src/fileaxe"
 
@@ -21,5 +23,7 @@ func main() {
 
 	conf := conf.Init(CLI, lg)
 	la := fileaxe.Init(conf, lg)
-	la.Run()
+	if err := la.Run(); err != nil {
+		os.Exit(1)
+	}
 }

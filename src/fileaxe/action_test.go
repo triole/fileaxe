@@ -95,7 +95,9 @@ func TestRotateUsesRotateCompressionFormat(t *testing.T) {
 	cnf.Rotate.CompressionFormat = "xz"
 	cnf.Compress.CompressionFormat = "gz" // must not leak into rotate
 	fa := Init(cnf, logseal.Init())
-	fa.Run()
+	if err := fa.Run(); err != nil {
+		t.Fatalf("rotate failed: %v", err)
+	}
 
 	archives := filesWithSuffix(t, dir, ".xz")
 	if len(archives) != 1 {

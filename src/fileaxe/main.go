@@ -6,7 +6,10 @@ import (
 	"github.com/triole/logseal"
 )
 
-func (fa FileAxe) Run() {
+// Run executes the configured action. It returns an error when any file could
+// not be processed, so main can signal the failure through the exit code; the
+// completion event carries the number of failures.
+func (fa FileAxe) Run() error {
 	start := time.Now()
 	fa.logStart()
 
@@ -21,25 +24,27 @@ func (fa FileAxe) Run() {
 		Order:   fa.Conf.Order,
 		RefTime: fa.Conf.Now,
 	})
+	var errs error
 	switch fa.Conf.Action {
 	case "list":
 		fa.list(fileList)
 	case "exists":
-		fa.exists(fileList)
+		errs = fa.exists(fileList)
 	case "compress":
-		fa.compress(fileList)
+		errs = fa.compress(fileList)
 	case "rotate":
-		fa.rotate(fileList)
+		errs = fa.rotate(fileList)
 	case "copy":
-		fa.copy(fileList)
+		errs = fa.copy(fileList)
 	case "move":
-		fa.move(fileList)
+		errs = fa.move(fileList)
 	case "truncate":
-		fa.truncate(fileList)
+		errs = fa.truncate(fileList)
 	case "remove":
-		fa.remove(fileList)
+		errs = fa.remove(fileList)
 	}
-	fa.logDone(fileList, time.Since(start))
+	fa.logDone(fileList, time.Since(start), countErrors(errs))
+	return errs
 }
 
 // logStart reports the run configuration once, before any file is touched. A
@@ -65,8 +70,9 @@ func (fa FileAxe) logStart() {
 // logDone reports the outcome of a run: how long it took and what the matched
 // set looked like. Like the start message it stays silent during a plain
 // listing, whose output is reserved for file names. Oldest and newest age are
-// omitted for an empty match, where they would suggest a file was found.
-func (fa FileAxe) logDone(fileList FileInfos, elapsed time.Duration) {
+// omitted for an empty match, where they would suggest a file was found, and
+// the error count is omitted for a clean run.
+func (fa FileAxe) logDone(fileList FileInfos, elapsed time.Duration, errCount int) {
 	if fa.Conf.Ls.Plain {
 		return
 	}
@@ -91,5 +97,23 @@ func (fa FileAxe) logDone(fileList FileInfos, elapsed time.Duration) {
 		fields["oldest_age"] = humanReadableDuration(oldest)
 		fields["newest_age"] = humanReadableDuration(newest)
 	}
+	if errCount > 0 {
+		fields["errors"] = errCount
+	}
 	fa.Lg.Info("done fileaxe", fields)
+}
+
+// countErrors returns how many errors were joined into err. The completion
+// event reports a count instead of repeating every error the actions logged.
+func countErrors(err error) (n int) {
+	if err == nil {
+		return 0
+	}
+	if joined, ok := err.(interface{ Unwrap() []error }); ok {
+		for _, e := range joined.Unwrap() {
+			n += countErrors(e)
+		}
+		return n
+	}
+	return 1
 }

@@ -1,6 +1,7 @@
 package fileaxe
 
 import (
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -136,6 +137,9 @@ func TestRunLogsDoneWithStats(t *testing.T) {
 			t.Errorf("done message should contain %q, got %q", field, out)
 		}
 	}
+	if strings.Contains(out, "errors=") {
+		t.Errorf("a clean run must not report errors, got %q", out)
+	}
 }
 
 func TestLogDoneOmitsAgeSpanWithoutMatches(t *testing.T) {
@@ -159,12 +163,74 @@ func TestLogDoneRespectsPlainListing(t *testing.T) {
 	cnf := conf.InitTestConf("list", dir, `\.log$`)
 	cnf.Ls.Plain = true
 
-	out := captureStdout(t, func() { newLogTestAxe(cnf).Run() })
+	out := captureStdout(t, func() { _ = newLogTestAxe(cnf).Run() })
 
 	if strings.Contains(out, "done fileaxe") {
 		t.Errorf("plain listing must not write a done message, got %q", out)
 	}
 	if strings.TrimSpace(out) != filepath.Join(dir, "a.log") {
 		t.Errorf("plain listing should only contain the file name, got %q", out)
+	}
+}
+
+// Regression test: a failed action used to leave Run without an error, so the
+// process exited 0 and the done event looked like a clean run.
+func TestRunReportsActionFailure(t *testing.T) {
+	dir := t.TempDir()
+	writeTestFile(t, filepath.Join(dir, "a.log"), "a")
+	writeTestFile(t, filepath.Join(dir, "b.log"), "b")
+	cnf := conf.InitTestConf("copy", dir, `\.log$`)
+	cnf.Copy.Target = filepath.Join(dir, "missing")
+
+	var runErr error
+	out := captureStdout(t, func() { runErr = newLogTestAxe(cnf).Run() })
+
+	if runErr == nil {
+		t.Fatal("Run should report that no file could be copied")
+	}
+	if !strings.Contains(out, "msg=done fileaxe") || !strings.Contains(out, "errors=2") {
+		t.Errorf("done message should count both failures, got %q", out)
+	}
+	for _, name := range []string{"a.log", "b.log"} {
+		if got := readTestFile(t, filepath.Join(dir, name)); got == "" {
+			t.Errorf("failed copy modified %q", name)
+		}
+	}
+}
+
+// Regression test: a failed exists check used to call os.Exit from the action,
+// which made the outcome untestable and skipped the completion event.
+func TestRunReturnsErrorWhenExistsCheckFails(t *testing.T) {
+	cnf := conf.InitTestConf("exists", t.TempDir(), `\.log$`)
+	cnf.Exists.MinNumber = 1
+
+	var runErr error
+	out := captureStdout(t, func() { runErr = newLogTestAxe(cnf).Run() })
+
+	if runErr == nil {
+		t.Fatal("Run should report a failed exists check")
+	}
+	if !strings.Contains(out, "success=false") || !strings.Contains(out, "errors=1") {
+		t.Errorf("want a failed check and one error in the done event, got %q", out)
+	}
+}
+
+func TestCountErrors(t *testing.T) {
+	one := errors.New("one")
+	two := errors.New("two")
+	cases := []struct {
+		name string
+		err  error
+		want int
+	}{
+		{"nil", nil, 0},
+		{"single", one, 1},
+		{"joined", errors.Join(one, two), 2},
+		{"nested", errors.Join(errors.Join(one, two), one), 3},
+	}
+	for _, c := range cases {
+		if got := countErrors(c.err); got != c.want {
+			t.Errorf("countErrors(%s): got %d, want %d", c.name, got, c.want)
+		}
 	}
 }

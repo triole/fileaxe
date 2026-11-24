@@ -80,7 +80,9 @@ func TestRotateRespectsSizeFilter(t *testing.T) {
 	cnf := conf.InitTestConf("rotate", dir, `\.log$`)
 	cnf.MinSize = 1 << 20
 	fa := Init(cnf, logseal.Init())
-	fa.Run()
+	if err := fa.Run(); err != nil {
+		t.Fatalf("rotate failed: %v", err)
+	}
 
 	// The source is only truncated after a successful compression, so a missing
 	// or empty archive would mean the rotated content was lost.

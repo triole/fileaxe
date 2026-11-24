@@ -128,7 +128,9 @@ func TestCopyActionUsesCopyTarget(t *testing.T) {
 	cnf.Copy.Target = targetDir
 	cnf.Move.Target = "" // copy must not read the move target
 	fa := Init(cnf, logseal.Init())
-	fa.copy(FileInfos{{Path: source}})
+	if err := fa.copy(FileInfos{{Path: source}}); err != nil {
+		t.Fatalf("copy failed: %v", err)
+	}
 
 	if got := readTestFile(t, filepath.Join(targetDir, "a.log")); got != "hello" {
 		t.Errorf("copied file content: got %q, want %q", got, "hello")
@@ -148,7 +150,9 @@ func TestMoveActionUsesMoveTarget(t *testing.T) {
 	cnf.Copy.Target = ""
 	cnf.Move.Target = targetDir
 	fa := Init(cnf, logseal.Init())
-	fa.move(FileInfos{{Path: source}})
+	if err := fa.move(FileInfos{{Path: source}}); err != nil {
+		t.Fatalf("move failed: %v", err)
+	}
 
 	if got := readTestFile(t, filepath.Join(targetDir, "a.log")); got != "hello" {
 		t.Errorf("moved file content: got %q, want %q", got, "hello")
