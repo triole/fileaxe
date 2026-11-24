@@ -25,6 +25,21 @@ type FileInfo struct {
 
 type FileInfos []FileInfo
 
+// Criteria describes which files Find selects and how the result is ordered.
+// Ages and sizes are filters: a zero min and max disables one of them, a zero
+// max leaves that range open ended.
+type Criteria struct {
+	Folder  string
+	Matcher string
+	MinAge  time.Duration
+	MaxAge  time.Duration
+	MinSize int64
+	MaxSize int64
+	SortBy  string
+	Order   string
+	RefTime time.Time
+}
+
 func (arr FileInfos) Len() int {
 	return len(arr)
 }
@@ -47,57 +62,66 @@ func (fa FileAxe) makeSortIndexAge(fi FileInfo) (r string) {
 	return fmt.Sprintf("%050d", fi.Age.Microseconds())
 }
 
-func (fa FileAxe) Find(basedir string, rxFilter string, minAge, maxAge time.Duration, refTime time.Time) (fileList FileInfos) {
+func (fa FileAxe) Find(c Criteria) (fileList FileInfos) {
 	fa.Lg.Debug("detect files", logseal.F{
-		"folder":    basedir,
-		"rxmatcher": rxFilter,
-		"min_age":   minAge,
-		"max_age":   maxAge,
+		"folder":    c.Folder,
+		"rxmatcher": c.Matcher,
+		"min_age":   c.MinAge,
+		"max_age":   c.MaxAge,
+		"min_size":  c.MinSize,
+		"max_size":  c.MaxSize,
 	})
-	inf, err := os.Stat(basedir)
+	inf, err := os.Stat(c.Folder)
 	fa.Lg.IfErrFatal("can not access folder", logseal.F{
-		"folder": basedir,
+		"folder": c.Folder,
 		"error":  err,
 	})
 	if !inf.IsDir() {
 		fa.Lg.IfErrFatal("not a folder", logseal.F{
-			"folder": basedir,
+			"folder": c.Folder,
 		})
 	}
 
-	rxf, _ := regexp.Compile(rxFilter)
-	err = filepath.Walk(basedir, func(path string, f os.FileInfo, err error) error {
+	rxf, _ := regexp.Compile(c.Matcher)
+	err = filepath.Walk(c.Folder, func(path string, f os.FileInfo, err error) error {
 		if rxf.MatchString(path) {
-			fi := fa.fileInfo(path, refTime)
+			fi := fa.fileInfo(path, c.RefTime)
 			if fi.Err == nil && !fi.IsDir {
 				fi.SortIndex = fa.makeSortIndexAge(fi)
-				if fa.Conf.SortBy == "path" {
+				if c.SortBy == "path" {
 					fi.SortIndex = fa.makeSortIndexPath(fi)
 				}
-				if fi.Age > minAge && maxAge == 0 ||
-					fi.Age > minAge && fi.Age < maxAge {
-					fa.Lg.Debug(
-						"add file",
-						logseal.F{"file": fi.Path, "age": fi.Age},
-					)
-					fileList = append(fileList, fi)
-				} else {
+				switch {
+				case !ageInRange(fi.Age, c.MinAge, c.MaxAge):
 					fa.Lg.Debug(
 						"skip file, age range does not fit",
 						logseal.F{"file": fi.Path, "age": fi.Age},
 					)
+				case !sizeInRange(fi.Size, c.MinSize, c.MaxSize):
+					fa.Lg.Debug(
+						"skip file, size range does not fit",
+						logseal.F{"file": fi.Path, "size": fi.SizeHR},
+					)
+				default:
+					fa.Lg.Debug(
+						"add file",
+						logseal.F{
+							"file": fi.Path, "age": fi.Age, "size": fi.SizeHR,
+						},
+					)
+					fileList = append(fileList, fi)
 				}
 			}
 		}
 		return nil
 	})
 	fa.Lg.IfErrFatal("find files failed for", logseal.F{
-		"folder": basedir,
+		"folder": c.Folder,
 		"error":  err,
 	})
 	fa.Lg.Debug("found amount of files", logseal.F{"no": len(fileList)})
 
-	if fa.Conf.Order == "asc" {
+	if c.Order == "asc" {
 		sort.Sort(FileInfos(fileList))
 	} else {
 		sort.Sort(sort.Reverse(FileInfos(fileList)))

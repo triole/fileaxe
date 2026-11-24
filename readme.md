@@ -31,6 +31,13 @@ Flags:
                                   4d, 2w; default behaviour is that all files
                                   in a folder will be considered, usage: -r 2h,
                                   -r 30m,2h
+  -z, --size-range="0,0"          size range of files to consider, string of
+                                  one or two comma separated sizes (min and max
+                                  size, both inclusive), supports suffixes b,
+                                  k, m, g, t, p (binary units, 1k = 1024 bytes),
+                                  plain numbers are bytes; default behaviour is
+                                  that files of any size will be considered,
+                                  usage: -z 1g, -z 1m,10m
   -s, --sort-by="age"             sort output list by, can be: age, path
   -o, --order="desc"              sort order
       --log-file="/dev/stdout"    log file

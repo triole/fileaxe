@@ -27,6 +27,9 @@ func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
 	conf.MinAge, conf.MaxAge = parseDurationRangeArg(
 		getcli(cli, "AgeRange").(string), lg,
 	)
+	conf.MinSize, conf.MaxSize = parseSizeRangeArg(
+		getcli(cli, "SizeRange").(string), lg,
+	)
 
 	conf.SortBy = getcli(cli, "SortBy").(string)
 	conf.Order = getcli(cli, "Order").(string)

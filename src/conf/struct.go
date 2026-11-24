@@ -9,6 +9,8 @@ type Conf struct {
 	Matcher   string
 	MinAge    time.Duration
 	MaxAge    time.Duration
+	MinSize   int64
+	MaxSize   int64
 	SortBy    string
 	Order     string
 	DryRun    bool

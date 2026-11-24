@@ -14,10 +14,17 @@ func (fa FileAxe) Run() {
 		)
 	}
 
-	fileList := fa.Find(
-		fa.Conf.Folder, fa.Conf.Matcher,
-		fa.Conf.MinAge, fa.Conf.MaxAge, fa.Conf.Now,
-	)
+	fileList := fa.Find(Criteria{
+		Folder:  fa.Conf.Folder,
+		Matcher: fa.Conf.Matcher,
+		MinAge:  fa.Conf.MinAge,
+		MaxAge:  fa.Conf.MaxAge,
+		MinSize: fa.Conf.MinSize,
+		MaxSize: fa.Conf.MaxSize,
+		SortBy:  fa.Conf.SortBy,
+		Order:   fa.Conf.Order,
+		RefTime: fa.Conf.Now,
+	})
 	switch fa.Conf.Action {
 	case "list":
 		fa.list(fileList)
