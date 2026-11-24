@@ -157,3 +157,32 @@ func TestFindSkipsUnstatableFiles(t *testing.T) {
 		t.Errorf("got %q, want %q", filepath.Base(files[0].Path), "a.log")
 	}
 }
+
+// Regression test: an unusable matcher reached the walk as a nil *Regexp and
+// panicked instead of reporting the pattern.
+func TestFindRejectsInvalidMatcher(t *testing.T) {
+	dir := t.TempDir()
+	writeTestFile(t, filepath.Join(dir, "a.log"), "a")
+	cnf := conf.InitTestConf("list", dir, "[")
+
+	var exits int
+	var files FileInfos
+	out := captureStdout(t, func() {
+		lg := logseal.Init("info", "stdout", true)
+		// logrus exits on Fatal; keep the test process alive and count instead.
+		lg.Logrus.ExitFunc = func(int) { exits++ }
+		files = Init(cnf, lg).Find(Criteria{
+			Folder: dir, Matcher: "[", RefTime: time.Now(),
+		})
+	})
+
+	if len(files) != 0 {
+		t.Errorf("an invalid matcher must not select files, got %d", len(files))
+	}
+	if exits != 1 {
+		t.Errorf("want the run to abort exactly once, got %d exits", exits)
+	}
+	if !strings.Contains(out, "invalid file matcher") || !strings.Contains(out, "regex=[") {
+		t.Errorf("want the rejected pattern in the log, got %q", out)
+	}
+}

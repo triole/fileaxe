@@ -82,7 +82,16 @@ func (fa FileAxe) Find(c Criteria) (fileList FileInfos) {
 		})
 	}
 
-	rxf, _ := regexp.Compile(c.Matcher)
+	rxf, err := regexp.Compile(c.Matcher)
+	if err != nil {
+		// An unusable pattern used to reach the walk as a nil *Regexp and panic
+		// there, losing the actual reason.
+		fa.Lg.IfErrFatal("invalid file matcher", logseal.F{
+			"regex": c.Matcher,
+			"error": err,
+		})
+		return nil
+	}
 	err = filepath.Walk(c.Folder, func(path string, f os.FileInfo, err error) error {
 		if rxf.MatchString(path) {
 			fi := fa.fileInfo(path, c.RefTime)
