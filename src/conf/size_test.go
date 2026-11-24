@@ -27,6 +27,9 @@ func TestParseSize(t *testing.T) {
 		{"2T", 2 << 40},
 		{"1p", 1 << 50},
 		{" 7k ", 7 << 10},
+		// Just below 2^63: the largest size a float64 can still represent as a
+		// positive int64.
+		{"9223372036854774784", 9223372036854774784},
 	}
 	for _, c := range valid {
 		got, err := parseSize(c.in)
@@ -39,7 +42,12 @@ func TestParseSize(t *testing.T) {
 		}
 	}
 
-	invalid := []string{"", "  ", "abc", "1x", "1.2.3g", "-1g", "1kk", "g", "."}
+	invalid := []string{
+		"", "  ", "abc", "1x", "1.2.3g", "-1g", "1kk", "g", ".",
+		// int64 overflow boundaries: 8192p and 2^63 convert to a negative
+		// int64, 8193p is above the representable range.
+		"8192p", "8193p", "9223372036854775807", "9223372036854775808",
+	}
 	for _, in := range invalid {
 		if got, err := parseSize(in); err == nil {
 			t.Errorf("parseSize(%q) should fail, got %d", in, got)

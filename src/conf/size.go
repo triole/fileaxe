@@ -51,7 +51,11 @@ func parseSize(s string) (int64, error) {
 	}
 
 	bytes := val * float64(mult)
-	if bytes > math.MaxInt64 {
+	// math.MaxInt64 is not representable as a float64: it rounds up to 2^63. The
+	// comparison therefore has to be inclusive, otherwise exactly 2^63 passes the
+	// check and converts to a negative int64, which silently turns the size
+	// filter into a no-op.
+	if bytes >= math.MaxInt64 {
 		return 0, fmt.Errorf("size %q is too large", s)
 	}
 	return int64(math.Round(bytes)), nil
