@@ -114,15 +114,26 @@ func (fa FileAxe) runCompression(sources []string, target string, format archive
 		)
 		return err
 	}
-	defer out.Close()
 
-	err = format.Archive(ctx, out, files)
-	if err != nil {
+	archiveErr := format.Archive(ctx, out, files)
+	// Close before removing: a failed archive must not be left behind, and an
+	// open file can not be removed on every platform. A close error counts as a
+	// failed archive, because the tail of the archive may never have reached disk.
+	if closeErr := out.Close(); archiveErr == nil {
+		archiveErr = closeErr
+	}
+	if archiveErr != nil {
+		if removeErr := os.Remove(target); removeErr != nil {
+			fa.Lg.Error(
+				"can not remove broken archive",
+				logseal.F{"target": target, "error": removeErr},
+			)
+		}
 		fa.Lg.Error(
 			"archiving files failed",
-			logseal.F{"files": files, "target": target, "error": err},
+			logseal.F{"files": files, "target": target, "error": archiveErr},
 		)
-		return err
+		return archiveErr
 	}
 	return nil
 }
