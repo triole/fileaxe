@@ -13,10 +13,11 @@ var (
 
 func main() {
 	parseArgs()
-	lg = logseal.Init(
-		CLI.LogLevel, logTarget(CLI.LogFile, CLI.DryRun),
-		CLI.LogNoColors, CLI.LogJSON,
-	)
+	target := logTarget(CLI.LogFile, CLI.DryRun)
+	lg = logseal.Init(CLI.LogLevel, target, CLI.LogNoColors, CLI.LogJSON)
+	// CLI.List.Plain is what conf.Init copies into Conf.Ls.Plain. Routing early
+	// keeps even argument errors off the plain listing's stdout.
+	routeLogsForPlainListing(lg, target, CLI.List.Plain)
 
 	conf := conf.Init(CLI, lg)
 	la := fileaxe.Init(conf, lg)
