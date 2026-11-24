@@ -130,19 +130,25 @@ func (fa FileAxe) Find(c Criteria) (fileList FileInfos) {
 }
 
 func (fa FileAxe) fileInfo(path string, refTime time.Time) (fi FileInfo) {
-	inf, err := os.Stat(path)
 	fi.Path = path
+	inf, err := os.Stat(path)
+	fi.Err = err
+	if err != nil {
+		// A dangling symlink never stats, and a file can vanish between the walk
+		// and this call. Both are ordinary conditions in a live directory, so
+		// report them instead of dereferencing a nil FileInfo.
+		fa.Lg.IfErrInfo("retrieve file stats failed", logseal.F{
+			"path": path, "error": err,
+		})
+		return
+	}
 	fi.IsDir = inf.IsDir()
 	fi.Size = inf.Size()
 	fi.SizeHR = humanReadableFileSize(float64(fi.Size))
 	fi.LastMod = inf.ModTime()
 	fi.Age = refTime.Sub(fi.LastMod)
-	fi.Err = err
 	fa.Lg.Trace("retrieve file stats", logseal.F{
-		"stats": fmt.Sprintf("%+v", fi), "error": err,
-	})
-	fa.Lg.IfErrInfo("retrieve file stats failed", logseal.F{
-		"path": path, "error": err,
+		"stats": fmt.Sprintf("%+v", fi),
 	})
 	return
 }

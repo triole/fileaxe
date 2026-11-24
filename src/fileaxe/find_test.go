@@ -117,3 +117,43 @@ func TestRotateRespectsSizeFilter(t *testing.T) {
 		t.Errorf("small file is below the size filter, size is %d, want 1024", fi.Size())
 	}
 }
+
+// Regression test: a stat failure used to be stored in FileInfo.Err only after
+// FileInfo had already been built from the nil FileInfo, which panicked.
+func TestFileInfoReportsStatFailure(t *testing.T) {
+	fa := newFindTestAxe(t)
+	missing := filepath.Join(t.TempDir(), "missing.log")
+
+	fi := fa.fileInfo(missing, time.Now())
+
+	if fi.Err == nil {
+		t.Fatalf("want an error for %q, got none", missing)
+	}
+	if fi.Path != missing {
+		t.Errorf("path is %q, want %q", fi.Path, missing)
+	}
+	if fi.IsDir || fi.Size != 0 {
+		t.Errorf("a failed stat must not report file details, got dir=%v size=%d", fi.IsDir, fi.Size)
+	}
+}
+
+// Regression test: a dangling symlink made Find panic instead of skipping the
+// unreadable entry.
+func TestFindSkipsUnstatableFiles(t *testing.T) {
+	dir := t.TempDir()
+	writeTestFile(t, filepath.Join(dir, "a.log"), "a")
+	broken := filepath.Join(dir, "broken.log")
+	if err := os.Symlink(filepath.Join(dir, "gone.log"), broken); err != nil {
+		t.Skipf("can not create symlink: %v", err)
+	}
+
+	fa := newFindTestAxe(t)
+	files := fa.Find(Criteria{Folder: dir, Matcher: `\.log$`, RefTime: time.Now()})
+
+	if len(files) != 1 {
+		t.Fatalf("want only the readable file, got %d files: %v", len(files), files)
+	}
+	if filepath.Base(files[0].Path) != "a.log" {
+		t.Errorf("got %q, want %q", filepath.Base(files[0].Path), "a.log")
+	}
+}
