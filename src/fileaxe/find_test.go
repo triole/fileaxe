@@ -158,6 +158,22 @@ func TestFindSkipsUnstatableFiles(t *testing.T) {
 	}
 }
 
+// runFindCapture runs Find with a logger that records fatal calls instead of
+// exiting the test process, and returns what was selected, how often the run
+// aborted and what was logged.
+func runFindCapture(t *testing.T, cnf conf.Conf, c Criteria) (FileInfos, int, string) {
+	t.Helper()
+	var exits int
+	var files FileInfos
+	out := captureStdout(t, func() {
+		lg := logseal.Init("info", "stdout", true)
+		// logrus exits on Fatal; keep the test process alive and count instead.
+		lg.Logrus.ExitFunc = func(int) { exits++ }
+		files = Init(cnf, lg).Find(c)
+	})
+	return files, exits, out
+}
+
 // Regression test: an unusable matcher reached the walk as a nil *Regexp and
 // panicked instead of reporting the pattern.
 func TestFindRejectsInvalidMatcher(t *testing.T) {
@@ -165,15 +181,8 @@ func TestFindRejectsInvalidMatcher(t *testing.T) {
 	writeTestFile(t, filepath.Join(dir, "a.log"), "a")
 	cnf := conf.InitTestConf("list", dir, "[")
 
-	var exits int
-	var files FileInfos
-	out := captureStdout(t, func() {
-		lg := logseal.Init("info", "stdout", true)
-		// logrus exits on Fatal; keep the test process alive and count instead.
-		lg.Logrus.ExitFunc = func(int) { exits++ }
-		files = Init(cnf, lg).Find(Criteria{
-			Folder: dir, Matcher: "[", RefTime: time.Now(),
-		})
+	files, exits, out := runFindCapture(t, cnf, Criteria{
+		Folder: dir, Matcher: "[", RefTime: time.Now(),
 	})
 
 	if len(files) != 0 {
@@ -184,5 +193,49 @@ func TestFindRejectsInvalidMatcher(t *testing.T) {
 	}
 	if !strings.Contains(out, "invalid file matcher") || !strings.Contains(out, "regex=[") {
 		t.Errorf("want the rejected pattern in the log, got %q", out)
+	}
+}
+
+// Regression test: a regular file passed as folder was accepted, because the
+// guard used IfErrFatal without an error field and therefore never fired.
+func TestFindRejectsNonFolderPath(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "a.log")
+	writeTestFile(t, path, "a")
+	cnf := conf.InitTestConf("list", path, `.*`)
+
+	files, exits, out := runFindCapture(t, cnf, Criteria{
+		Folder: path, Matcher: `.*`, RefTime: time.Now(),
+	})
+
+	if len(files) != 0 {
+		t.Errorf("a regular file must not be processed as folder, got %d files", len(files))
+	}
+	if exits != 1 {
+		t.Errorf("want the run to abort exactly once, got %d exits", exits)
+	}
+	if !strings.Contains(out, "is not a folder") || !strings.Contains(out, path) {
+		t.Errorf("want the rejected path in the log, got %q", out)
+	}
+}
+
+// Regression test: a missing folder used to be dereferenced instead of
+// reported, because the stat error was only logged.
+func TestFindReportsMissingFolder(t *testing.T) {
+	missing := filepath.Join(t.TempDir(), "gone")
+	cnf := conf.InitTestConf("list", missing, `.*`)
+
+	files, exits, out := runFindCapture(t, cnf, Criteria{
+		Folder: missing, Matcher: `.*`, RefTime: time.Now(),
+	})
+
+	if len(files) != 0 {
+		t.Errorf("a missing folder must not produce files, got %d", len(files))
+	}
+	if exits != 1 {
+		t.Errorf("want the run to abort exactly once, got %d exits", exits)
+	}
+	if !strings.Contains(out, "can not access folder") || !strings.Contains(out, missing) {
+		t.Errorf("want the missing path in the log, got %q", out)
 	}
 }

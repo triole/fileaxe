@@ -72,14 +72,20 @@ func (fa FileAxe) Find(c Criteria) (fileList FileInfos) {
 		"max_size":  c.MaxSize,
 	})
 	inf, err := os.Stat(c.Folder)
-	fa.Lg.IfErrFatal("can not access folder", logseal.F{
-		"folder": c.Folder,
-		"error":  err,
-	})
+	if err != nil {
+		fa.Lg.IfErrFatal("can not access folder", logseal.F{
+			"folder": c.Folder,
+			"error":  err,
+		})
+		return nil
+	}
 	if !inf.IsDir() {
-		fa.Lg.IfErrFatal("not a folder", logseal.F{
+		// IfErrFatal only fires when the fields carry an error, so a plain
+		// "this is not usable" has to abort through Fatal instead.
+		fa.Lg.Fatal("folder to process is not a folder", logseal.F{
 			"folder": c.Folder,
 		})
+		return nil
 	}
 
 	rxf, err := regexp.Compile(c.Matcher)
