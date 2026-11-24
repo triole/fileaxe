@@ -27,7 +27,10 @@ func TestMainProcessor(t *testing.T) {
 	la := fileaxe.Init(cnf, lg)
 	la.Run()
 
-	files := la.Find(fileaxe.Criteria{Folder: fol, Matcher: "\\.log$", RefTime: time.Now()})
+	files, err := la.Find(fileaxe.Criteria{Folder: fol, Matcher: "\\.log$", RefTime: time.Now()})
+	if err != nil {
+		t.Fatalf("find failed: %v", err)
+	}
 	verifyFiles(files, "bbffcec3d7789bba6f11859be3edcb34", 9, t)
 
 	cnf = conf.InitTestConf("tn", fol, "\\.log$")

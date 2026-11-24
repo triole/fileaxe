@@ -1,6 +1,7 @@
 package fileaxe
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -62,7 +63,11 @@ func (fa FileAxe) makeSortIndexAge(fi FileInfo) (r string) {
 	return fmt.Sprintf("%050d", fi.Age.Microseconds())
 }
 
-func (fa FileAxe) Find(c Criteria) (fileList FileInfos) {
+// Find walks the folder and returns the matching files. Paths that can not be
+// read are logged and collected in the returned error: the walk continues with
+// what is readable, but the run must not look successful while part of the tree
+// was skipped.
+func (fa FileAxe) Find(c Criteria) (fileList FileInfos, errs error) {
 	fa.Lg.Debug("detect files", logseal.F{
 		"folder":    c.Folder,
 		"rxmatcher": c.Matcher,
@@ -77,7 +82,7 @@ func (fa FileAxe) Find(c Criteria) (fileList FileInfos) {
 			"folder": c.Folder,
 			"error":  err,
 		})
-		return nil
+		return nil, err
 	}
 	if !inf.IsDir() {
 		// IfErrFatal only fires when the fields carry an error, so a plain
@@ -85,7 +90,7 @@ func (fa FileAxe) Find(c Criteria) (fileList FileInfos) {
 		fa.Lg.Fatal("folder to process is not a folder", logseal.F{
 			"folder": c.Folder,
 		})
-		return nil
+		return nil, fmt.Errorf("folder to process is not a folder: %q", c.Folder)
 	}
 
 	rxf, err := regexp.Compile(c.Matcher)
@@ -96,9 +101,16 @@ func (fa FileAxe) Find(c Criteria) (fileList FileInfos) {
 			"regex": c.Matcher,
 			"error": err,
 		})
-		return nil
+		return nil, err
 	}
 	err = filepath.Walk(c.Folder, func(path string, f os.FileInfo, err error) error {
+		if err != nil {
+			// A directory can vanish or be unreadable mid-walk. Keep going so one
+			// bad subtree does not discard the rest, but remember the failure.
+			fa.Lg.Error("can not walk path", logseal.F{"path": path, "error": err})
+			errs = errors.Join(errs, err)
+			return nil
+		}
 		if rxf.MatchString(path) {
 			fi := fa.fileInfo(path, c.RefTime)
 			if fi.Err == nil && !fi.IsDir {
@@ -132,10 +144,11 @@ func (fa FileAxe) Find(c Criteria) (fileList FileInfos) {
 		}
 		return nil
 	})
-	fa.Lg.IfErrFatal("find files failed for", logseal.F{
-		"folder": c.Folder,
-		"error":  err,
-	})
+	if err != nil {
+		// Walk itself only reports errors the callback did not handle. Join them
+		// instead of aborting, so the exit code still reflects the failure.
+		errs = errors.Join(errs, err)
+	}
 	fa.Lg.Debug("found amount of files", logseal.F{"no": len(fileList)})
 
 	if c.Order == "asc" {

@@ -1,6 +1,7 @@
 package fileaxe
 
 import (
+	"errors"
 	"time"
 
 	"github.com/triole/logseal"
@@ -13,7 +14,7 @@ func (fa FileAxe) Run() error {
 	start := time.Now()
 	fa.logStart()
 
-	fileList := fa.Find(Criteria{
+	fileList, errs := fa.Find(Criteria{
 		Folder:  fa.Conf.Folder,
 		Matcher: fa.Conf.Matcher,
 		MinAge:  fa.Conf.MinAge,
@@ -24,24 +25,23 @@ func (fa FileAxe) Run() error {
 		Order:   fa.Conf.Order,
 		RefTime: fa.Conf.Now,
 	})
-	var errs error
 	switch fa.Conf.Action {
 	case "list":
 		fa.list(fileList)
 	case "exists":
-		errs = fa.exists(fileList)
+		errs = errors.Join(errs, fa.exists(fileList))
 	case "compress":
-		errs = fa.compress(fileList)
+		errs = errors.Join(errs, fa.compress(fileList))
 	case "rotate":
-		errs = fa.rotate(fileList)
+		errs = errors.Join(errs, fa.rotate(fileList))
 	case "copy":
-		errs = fa.copy(fileList)
+		errs = errors.Join(errs, fa.copy(fileList))
 	case "move":
-		errs = fa.move(fileList)
+		errs = errors.Join(errs, fa.move(fileList))
 	case "truncate":
-		errs = fa.truncate(fileList)
+		errs = errors.Join(errs, fa.truncate(fileList))
 	case "remove":
-		errs = fa.remove(fileList)
+		errs = errors.Join(errs, fa.remove(fileList))
 	}
 	fa.logDone(fileList, time.Since(start), countErrors(errs))
 	return errs

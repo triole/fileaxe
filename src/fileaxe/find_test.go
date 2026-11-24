@@ -48,13 +48,16 @@ func TestFindFiltersBySize(t *testing.T) {
 		{"exact single size", 10, 10, 1},
 	}
 	for _, c := range cases {
-		got := fa.Find(Criteria{
+		got, err := fa.Find(Criteria{
 			Folder:  dir,
 			Matcher: `\.log$`,
 			MinSize: c.min,
 			MaxSize: c.max,
 			RefTime: time.Now(),
 		})
+		if err != nil {
+			t.Fatalf("%s: find failed: %v", c.name, err)
+		}
 		if len(got) != c.want {
 			t.Errorf("%s: got %d files, want %d", c.name, len(got), c.want)
 		}
@@ -150,7 +153,10 @@ func TestFindSkipsUnstatableFiles(t *testing.T) {
 	}
 
 	fa := newFindTestAxe(t)
-	files := fa.Find(Criteria{Folder: dir, Matcher: `\.log$`, RefTime: time.Now()})
+	files, err := fa.Find(Criteria{Folder: dir, Matcher: `\.log$`, RefTime: time.Now()})
+	if err != nil {
+		t.Fatalf("an unstatable entry must not fail the walk: %v", err)
+	}
 
 	if len(files) != 1 {
 		t.Fatalf("want only the readable file, got %d files: %v", len(files), files)
@@ -160,20 +166,52 @@ func TestFindSkipsUnstatableFiles(t *testing.T) {
 	}
 }
 
+// Regression test: an unreadable directory used to disappear from the result
+// without an error, so a partial sweep still looked successful.
+func TestFindReportsUnreadableDirectory(t *testing.T) {
+	dir := t.TempDir()
+	writeTestFile(t, filepath.Join(dir, "visible.log"), "a")
+	locked := filepath.Join(dir, "locked")
+	if err := os.Mkdir(locked, 0o755); err != nil {
+		t.Fatalf("can not create %q: %v", locked, err)
+	}
+	writeTestFile(t, filepath.Join(locked, "hidden.log"), "b")
+	if err := os.Chmod(locked, 0); err != nil {
+		t.Fatalf("can not lock %q: %v", locked, err)
+	}
+	t.Cleanup(func() { _ = os.Chmod(locked, 0o755) })
+
+	// A privileged runner can read the directory anyway, so the error cannot be
+	// provoked there.
+	if _, err := os.ReadDir(locked); err == nil {
+		t.Skip("locked directory stays readable, probably running as a privileged user")
+	}
+
+	fa := newFindTestAxe(t)
+	files, err := fa.Find(Criteria{Folder: dir, Matcher: `\.log$`, RefTime: time.Now()})
+	if err == nil {
+		t.Fatal("an unreadable directory should be reported")
+	}
+	if len(files) != 1 || filepath.Base(files[0].Path) != "visible.log" {
+		t.Errorf("the readable file should still be listed, got %v", files)
+	}
+}
+
 // runFindCapture runs Find with a logger that records fatal calls instead of
 // exiting the test process, and returns what was selected, how often the run
-// aborted and what was logged.
-func runFindCapture(t *testing.T, cnf conf.Conf, c Criteria) (FileInfos, int, string) {
+// aborted, what was logged and the find error.
+func runFindCapture(t *testing.T, cnf conf.Conf, c Criteria) (FileInfos, int, string, error) {
 	t.Helper()
 	var exits int
 	var files FileInfos
+	var err error
 	out := captureStdout(t, func() {
 		lg := logseal.Init("info", "stdout", true)
 		// logrus exits on Fatal; keep the test process alive and count instead.
 		lg.Logrus.ExitFunc = func(int) { exits++ }
-		files = Init(cnf, lg).Find(c)
+		files, err = Init(cnf, lg).Find(c)
 	})
-	return files, exits, out
+	return files, exits, out, err
 }
 
 // Regression test: an unusable matcher reached the walk as a nil *Regexp and
@@ -183,9 +221,13 @@ func TestFindRejectsInvalidMatcher(t *testing.T) {
 	writeTestFile(t, filepath.Join(dir, "a.log"), "a")
 	cnf := conf.InitTestConf("list", dir, "[")
 
-	files, exits, out := runFindCapture(t, cnf, Criteria{
+	files, exits, out, findErr := runFindCapture(t, cnf, Criteria{
 		Folder: dir, Matcher: "[", RefTime: time.Now(),
 	})
+
+	if findErr == nil {
+		t.Error("an invalid matcher should be returned as an error")
+	}
 
 	if len(files) != 0 {
 		t.Errorf("an invalid matcher must not select files, got %d", len(files))
@@ -206,9 +248,13 @@ func TestFindRejectsNonFolderPath(t *testing.T) {
 	writeTestFile(t, path, "a")
 	cnf := conf.InitTestConf("list", path, `.*`)
 
-	files, exits, out := runFindCapture(t, cnf, Criteria{
+	files, exits, out, findErr := runFindCapture(t, cnf, Criteria{
 		Folder: path, Matcher: `.*`, RefTime: time.Now(),
 	})
+
+	if findErr == nil {
+		t.Error("a regular file as folder should be returned as an error")
+	}
 
 	if len(files) != 0 {
 		t.Errorf("a regular file must not be processed as folder, got %d files", len(files))
@@ -227,9 +273,13 @@ func TestFindReportsMissingFolder(t *testing.T) {
 	missing := filepath.Join(t.TempDir(), "gone")
 	cnf := conf.InitTestConf("list", missing, `.*`)
 
-	files, exits, out := runFindCapture(t, cnf, Criteria{
+	files, exits, out, findErr := runFindCapture(t, cnf, Criteria{
 		Folder: missing, Matcher: `.*`, RefTime: time.Now(),
 	})
+
+	if findErr == nil {
+		t.Error("a missing folder should be returned as an error")
+	}
 
 	if len(files) != 0 {
 		t.Errorf("a missing folder must not produce files, got %d", len(files))
@@ -256,7 +306,11 @@ func TestFindFollowsResolvedFolder(t *testing.T) {
 	fa := newFindTestAxe(t)
 	criteria := Criteria{Folder: link, Matcher: `\.log$`, RefTime: time.Now()}
 
-	if got := fa.Find(criteria); len(got) != 0 {
+	got, err := fa.Find(criteria)
+	if err != nil {
+		t.Fatalf("find of a symlinked root failed: %v", err)
+	}
+	if len(got) != 0 {
 		t.Errorf("without resolution a symlinked root is not walked, got %d files", len(got))
 	}
 
@@ -266,7 +320,10 @@ func TestFindFollowsResolvedFolder(t *testing.T) {
 	}
 	criteria.Folder = resolved
 
-	got := fa.Find(criteria)
+	got, err = fa.Find(criteria)
+	if err != nil {
+		t.Fatalf("find of the resolved folder failed: %v", err)
+	}
 	if len(got) != 1 {
 		t.Fatalf("the resolved folder should list a.log, got %d files", len(got))
 	}
