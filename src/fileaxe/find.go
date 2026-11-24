@@ -66,8 +66,8 @@ func (fa FileAxe) Find(c Criteria) (fileList FileInfos) {
 	fa.Lg.Debug("detect files", logseal.F{
 		"folder":    c.Folder,
 		"rxmatcher": c.Matcher,
-		"min_age":   c.MinAge,
-		"max_age":   c.MaxAge,
+		"min_age":   humanReadableDuration(c.MinAge),
+		"max_age":   humanReadableDuration(c.MaxAge),
 		"min_size":  c.MinSize,
 		"max_size":  c.MaxSize,
 	})
@@ -110,7 +110,7 @@ func (fa FileAxe) Find(c Criteria) (fileList FileInfos) {
 				case !ageInRange(fi.Age, c.MinAge, c.MaxAge):
 					fa.Lg.Debug(
 						"skip file, age range does not fit",
-						logseal.F{"file": fi.Path, "age": fi.Age},
+						logseal.F{"file": fi.Path, "age": humanReadableDuration(fi.Age)},
 					)
 				case !sizeInRange(fi.Size, c.MinSize, c.MaxSize):
 					fa.Lg.Debug(
@@ -121,7 +121,9 @@ func (fa FileAxe) Find(c Criteria) (fileList FileInfos) {
 					fa.Lg.Debug(
 						"add file",
 						logseal.F{
-							"file": fi.Path, "age": fi.Age, "size": fi.SizeHR,
+							"file": fi.Path,
+							"age":  humanReadableDuration(fi.Age),
+							"size": fi.SizeHR,
 						},
 					)
 					fileList = append(fileList, fi)

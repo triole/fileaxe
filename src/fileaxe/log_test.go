@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"fileaxe/src/conf"
 
@@ -88,5 +89,22 @@ func TestRunReportsStartOnce(t *testing.T) {
 	}
 	if !strings.Contains(out, "a.log") {
 		t.Errorf("the run should still list the matching file, got %q", out)
+	}
+}
+
+// Regression test: file related info logs reported only the path and a raw
+// duration, so a listing gave no size and an age past a day read "50h0m0s".
+func TestLogFileInfoCarriesSizeAndReadableAge(t *testing.T) {
+	fil := FileInfo{Path: "/some/file.log", SizeHR: "2KB", Age: 50 * time.Hour}
+	fields := FileAxe{}.logFileInfo(fil)
+
+	if got := fields["size"]; got != "2KB" {
+		t.Errorf("size field: got %v, want %q", got, "2KB")
+	}
+	if got := fields["age"]; got != "2d2h" {
+		t.Errorf("age field: got %v, want %q", got, "2d2h")
+	}
+	if got := fields["file"]; got != fil.Path {
+		t.Errorf("file field: got %v, want %q", got, fil.Path)
 	}
 }

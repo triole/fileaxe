@@ -4,6 +4,7 @@ import (
 	"math"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestHumanReadableFileSize(t *testing.T) {
@@ -42,5 +43,38 @@ func TestHumanReadableFileSizeIsTotal(t *testing.T) {
 				size, got,
 			)
 		}
+	}
+}
+
+func TestHumanReadableDuration(t *testing.T) {
+	cases := []struct {
+		in   time.Duration
+		want string
+	}{
+		{0, "0s"},
+		{500 * time.Millisecond, "500ms"},
+		{-500 * time.Millisecond, "-500ms"},
+		{1500 * time.Millisecond, "1s"},
+		{90 * time.Second, "1m30s"},
+		{2 * time.Hour, "2h"},
+		{time.Hour + 5*time.Second, "1h5s"},
+		{24 * time.Hour, "1d"},
+		{36*time.Hour + 30*time.Minute, "1d12h30m"},
+		{50 * time.Hour, "2d2h"},
+		{49*time.Hour + 3*time.Minute + 4*time.Second, "2d1h3m4s"},
+		{-90 * time.Minute, "-1h30m"},
+	}
+	for _, c := range cases {
+		if got := humanReadableDuration(c.in); got != c.want {
+			t.Errorf("humanReadableDuration(%v): got %q, want %q", c.in, got, c.want)
+		}
+	}
+}
+
+// Regression test: the day unit has to survive a full day, which Go's own
+// duration rendering would turn into "24h0m0s".
+func TestHumanReadableDurationUsesDays(t *testing.T) {
+	if got := humanReadableDuration(72 * time.Hour); got != "3d" {
+		t.Errorf("humanReadableDuration(72h) = %q, want %q", got, "3d")
 	}
 }

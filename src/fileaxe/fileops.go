@@ -30,7 +30,8 @@ func (fa FileAxe) copyFile(fil FileInfo, destDir string) error {
 		fa.Lg.Error(
 			fa.Conf.MsgPrefix+"can not copy file",
 			logseal.F{
-				"source_age":       fil.Age,
+				"source_age":       humanReadableDuration(fil.Age),
+				"source_size":      fil.SizeHR,
 				"source_path":      sourcePath,
 				"destination_path": destDir,
 				"error":            err},
@@ -38,7 +39,8 @@ func (fa FileAxe) copyFile(fil FileInfo, destDir string) error {
 		return err
 	}
 	fields := logseal.F{
-		"source_age":       fil.Age,
+		"source_age":       humanReadableDuration(fil.Age),
+		"source_size":      fil.SizeHR,
 		"source_path":      sourcePath,
 		"destination_path": destPath,
 	}
@@ -49,6 +51,8 @@ func (fa FileAxe) copyFile(fil FileInfo, destDir string) error {
 
 	logErr := func(err error) error {
 		fa.Lg.Error(fa.Conf.MsgPrefix+"can not copy file", logseal.F{
+			"source_age":       humanReadableDuration(fil.Age),
+			"source_size":      fil.SizeHR,
 			"source_path":      sourcePath,
 			"destination_path": destPath,
 			"error":            err,

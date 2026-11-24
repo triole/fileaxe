@@ -51,8 +51,8 @@ func (fa FileAxe) logStart() {
 		"folder":    fa.Conf.Folder,
 		"rxmatcher": fa.Conf.Matcher,
 		"symlinks":  fa.Conf.FollowSymlinks,
-		"min_age":   fa.Conf.MinAge,
-		"max_age":   fa.Conf.MaxAge,
+		"min_age":   humanReadableDuration(fa.Conf.MinAge),
+		"max_age":   humanReadableDuration(fa.Conf.MaxAge),
 		"min_size":  fa.Conf.MinSize,
 		"max_size":  fa.Conf.MaxSize,
 	})

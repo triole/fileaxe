@@ -68,15 +68,20 @@ func (fa FileAxe) compressFile(sourceFile FileInfo, target, compressionFormat st
 			fa.Lg.Info(
 				"compression done",
 				logseal.F{
-					"file": target, "duration": elapsed,
-					"size": taInfos.SizeHR,
+					"file":        target,
+					"duration":    humanReadableDuration(elapsed),
+					"source_size": sourceFile.SizeHR,
+					"size":        taInfos.SizeHR,
 				},
 			)
 		} else {
 			fa.Lg.Error(
 				"compression failed",
 				logseal.F{
-					"path": sourceFile.Path, "duration": elapsed, "error": err,
+					"path":        sourceFile.Path,
+					"source_size": sourceFile.SizeHR,
+					"duration":    humanReadableDuration(elapsed),
+					"error":       err,
 				},
 			)
 		}

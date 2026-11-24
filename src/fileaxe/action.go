@@ -119,6 +119,8 @@ func (fa FileAxe) remove(fileList FileInfos) {
 
 func (fa FileAxe) logFileInfo(fil FileInfo) logseal.F {
 	return logseal.F{
-		"file": fil.Path, "age": fil.Age,
+		"file": fil.Path,
+		"age":  humanReadableDuration(fil.Age),
+		"size": fil.SizeHR,
 	}
 }
