@@ -23,6 +23,10 @@ Flags:
   -f, --folder="/home/ole/rolling/golang/projects/fileaxe/src"
                                   folder to process, default is current
                                   directory
+  -L, --follow-symlinks           resolve the folder argument through symlinks,
+                                  so a symlinked folder is processed like its
+                                  target; the walk itself never follows symlinks
+                                  inside the tree
   -m, --matcher=".*"              regex matcher for file detection, e.g. '\..*$'
                                   or '\.yaml$
   -r, --age-range="0,0"           age range of files to consider, string of one

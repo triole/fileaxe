@@ -61,7 +61,7 @@ func TestLogStartRespectsPlainListing(t *testing.T) {
 	if !strings.Contains(out, "start fileaxe") {
 		t.Errorf("expected a start message, got %q", out)
 	}
-	for _, field := range []string{"folder=/some/folder", "rxmatcher", "min_age", "min_size"} {
+	for _, field := range []string{"folder=/some/folder", "rxmatcher", "symlinks=false", "min_age", "min_size"} {
 		if !strings.Contains(out, field) {
 			t.Errorf("start message should contain %q, got %q", field, out)
 		}

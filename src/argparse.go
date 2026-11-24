@@ -19,18 +19,19 @@ var (
 )
 
 var CLI struct {
-	SubCommand  string `kong:"-"`
-	Folder      string `help:"folder to process, default is current directory" short:"f" default:"${curdir}"`
-	Matcher     string `help:"regex matcher for file detection, e.g. '\\..*$' or '\\.yaml$" short:"m" default:".*"`
-	AgeRange    string `help:"age range of files to consider, string of one or two comma separated values (min age and max age), supports durations like 90m, 12h, 4d, 2w; default behaviour is that all files in a folder will be considered, usage: -r 2h, -r 30m,2h" short:"r" default:"0,0"`
-	SizeRange   string `help:"size range of files to consider, string of one or two comma separated sizes (min and max size, both inclusive), supports suffixes b, k, m, g, t, p (binary units, 1k = 1024 bytes), plain numbers are bytes; default behaviour is that files of any size will be considered, usage: -z 1g, -z 1m,10m" short:"z" default:"0,0"`
-	SortBy      string `help:"sort output list by, can be: age, path" short:"s" enum:"age,path" default:"age"`
-	Order       string `help:"sort order" short:"o" enum:"asc,desc" default:"desc"`
-	LogFile     string `help:"log file, ignored on a dry run, which always logs to stdout" default:"/dev/stdout"`
-	LogLevel    string `help:"log level" default:"info" enum:"trace,debug,info,error,fatal"`
-	LogNoColors bool   `help:"disable output colours, print plain text"`
-	LogJSON     bool   `help:"enable json log, instead of text one"`
-	DryRun      bool   `help:"dry run, just print don't do, logs are written to stdout" short:"n"`
+	SubCommand     string `kong:"-"`
+	Folder         string `help:"folder to process, default is current directory" short:"f" default:"${curdir}"`
+	FollowSymlinks bool   `help:"resolve the folder argument through symlinks, so a symlinked folder is processed like its target; the walk itself never follows symlinks inside the tree" short:"L"`
+	Matcher        string `help:"regex matcher for file detection, e.g. '\\..*$' or '\\.yaml$" short:"m" default:".*"`
+	AgeRange       string `help:"age range of files to consider, string of one or two comma separated values (min age and max age), supports durations like 90m, 12h, 4d, 2w; default behaviour is that all files in a folder will be considered, usage: -r 2h, -r 30m,2h" short:"r" default:"0,0"`
+	SizeRange      string `help:"size range of files to consider, string of one or two comma separated sizes (min and max size, both inclusive), supports suffixes b, k, m, g, t, p (binary units, 1k = 1024 bytes), plain numbers are bytes; default behaviour is that files of any size will be considered, usage: -z 1g, -z 1m,10m" short:"z" default:"0,0"`
+	SortBy         string `help:"sort output list by, can be: age, path" short:"s" enum:"age,path" default:"age"`
+	Order          string `help:"sort order" short:"o" enum:"asc,desc" default:"desc"`
+	LogFile        string `help:"log file, ignored on a dry run, which always logs to stdout" default:"/dev/stdout"`
+	LogLevel       string `help:"log level" default:"info" enum:"trace,debug,info,error,fatal"`
+	LogNoColors    bool   `help:"disable output colours, print plain text"`
+	LogJSON        bool   `help:"enable json log, instead of text one"`
+	DryRun         bool   `help:"dry run, just print don't do, logs are written to stdout" short:"n"`
 
 	List struct {
 		Plain bool `help:"print plain list, file names only" short:"p"`

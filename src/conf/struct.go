@@ -3,26 +3,27 @@ package conf
 import "time"
 
 type Conf struct {
-	Action    string
-	Now       time.Time
-	Folder    string
-	Matcher   string
-	MinAge    time.Duration
-	MaxAge    time.Duration
-	MinSize   int64
-	MaxSize   int64
-	SortBy    string
-	Order     string
-	DryRun    bool
-	Ls        tLs
-	Exists    tExists
-	Compress  tCompress
-	Rotate    tRotate
-	Copy      tCopyMove
-	Move      tCopyMove
-	Truncate  tRemove
-	Remove    tRemove
-	MsgPrefix string
+	Action         string
+	Now            time.Time
+	Folder         string
+	FollowSymlinks bool
+	Matcher        string
+	MinAge         time.Duration
+	MaxAge         time.Duration
+	MinSize        int64
+	MaxSize        int64
+	SortBy         string
+	Order          string
+	DryRun         bool
+	Ls             tLs
+	Exists         tExists
+	Compress       tCompress
+	Rotate         tRotate
+	Copy           tCopyMove
+	Move           tCopyMove
+	Truncate       tRemove
+	Remove         tRemove
+	MsgPrefix      string
 }
 
 type tLs struct {

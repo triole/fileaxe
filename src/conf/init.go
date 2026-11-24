@@ -1,7 +1,6 @@
 package conf
 
 import (
-	"path/filepath"
 	"reflect"
 	"strings"
 	"time"
@@ -12,15 +11,18 @@ import (
 func Init(cli interface{}, lg logseal.Logseal) (conf Conf) {
 	conf.Now = time.Now()
 
-	abs, err := filepath.Abs(getcli(cli, "Folder").(string))
+	rawFolder := getcli(cli, "Folder").(string)
+	conf.FollowSymlinks = getcli(cli, "FollowSymlinks").(bool)
+	folder, err := FolderArg(rawFolder, conf.FollowSymlinks)
 	lg.IfErrFatal(
-		"absolute file path creation failed", logseal.F{
-			"error": err,
-			"path":  abs,
+		"can not prepare folder for processing", logseal.F{
+			"folder":          rawFolder,
+			"follow_symlinks": conf.FollowSymlinks,
+			"error":           err,
 		},
 	)
 	if err == nil {
-		conf.Folder = abs
+		conf.Folder = folder
 	}
 
 	conf.Matcher = getcli(cli, "Matcher").(string)

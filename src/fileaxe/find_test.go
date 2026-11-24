@@ -239,3 +239,36 @@ func TestFindReportsMissingFolder(t *testing.T) {
 		t.Errorf("want the missing path in the log, got %q", out)
 	}
 }
+
+// Regression test: a symlinked folder was walked as a symlink, so nothing was
+// found and nothing was reported. With --follow-symlinks conf resolves the
+// argument and the walk sees the target.
+func TestFindFollowsResolvedFolder(t *testing.T) {
+	real := t.TempDir()
+	writeTestFile(t, filepath.Join(real, "a.log"), "a")
+	link := filepath.Join(t.TempDir(), "link")
+	if err := os.Symlink(real, link); err != nil {
+		t.Skipf("can not create symlink: %v", err)
+	}
+
+	fa := newFindTestAxe(t)
+	criteria := Criteria{Folder: link, Matcher: `\.log$`, RefTime: time.Now()}
+
+	if got := fa.Find(criteria); len(got) != 0 {
+		t.Errorf("without resolution a symlinked root is not walked, got %d files", len(got))
+	}
+
+	resolved, err := conf.FolderArg(link, true)
+	if err != nil {
+		t.Fatalf("can not resolve %q: %v", link, err)
+	}
+	criteria.Folder = resolved
+
+	got := fa.Find(criteria)
+	if len(got) != 1 {
+		t.Fatalf("the resolved folder should list a.log, got %d files", len(got))
+	}
+	if filepath.Base(got[0].Path) != "a.log" {
+		t.Errorf("got %q, want %q", filepath.Base(got[0].Path), "a.log")
+	}
+}
