@@ -197,6 +197,33 @@ func TestFindReportsUnreadableDirectory(t *testing.T) {
 	}
 }
 
+// Regression test: the debug event repeated the size filters as raw bytes.
+func TestFindReportsHumanReadableSizeFilters(t *testing.T) {
+	dir := t.TempDir()
+	cnf := conf.InitTestConf("list", dir, `\.log$`)
+
+	var findErr error
+	out := captureStdout(t, func() {
+		lg := logseal.Init("debug", "stdout", true)
+		_, findErr = Init(cnf, lg).Find(Criteria{
+			Folder:  dir,
+			Matcher: `\.log$`,
+			MinSize: 1 << 20,
+			MaxSize: 2 << 20,
+			RefTime: time.Now(),
+		})
+	})
+	if findErr != nil {
+		t.Fatalf("find failed: %v", findErr)
+	}
+
+	for _, field := range []string{"min_size=1MB", "max_size=2MB"} {
+		if !strings.Contains(out, field) {
+			t.Errorf("debug message should contain %q, got %q", field, out)
+		}
+	}
+}
+
 // runFindCapture runs Find with a logger that records fatal calls instead of
 // exiting the test process, and returns what was selected, how often the run
 // aborted, what was logged and the find error.

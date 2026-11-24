@@ -92,6 +92,22 @@ func TestLogStartRespectsPlainListing(t *testing.T) {
 	}
 }
 
+// Regression test: the start event reported the size filters as raw byte
+// counts while every other size in the log was human readable.
+func TestLogStartReportsHumanReadableSizeFilters(t *testing.T) {
+	cnf := conf.InitTestConf("list", "/some/folder", `.*`)
+	cnf.MinSize = 1 << 30
+	cnf.MaxSize = 2 << 30
+
+	out := captureStdout(t, func() { newLogTestAxe(cnf).logStart() })
+
+	for _, field := range []string{"min_size=1GB", "max_size=2GB"} {
+		if !strings.Contains(out, field) {
+			t.Errorf("start message should contain %q, got %q", field, out)
+		}
+	}
+}
+
 // Regression test: a run used to report its start twice, once from main and
 // once from Run, with different names and field vocabularies for the same
 // values. Run is now the only place that reports it.

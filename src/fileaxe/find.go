@@ -73,8 +73,8 @@ func (fa FileAxe) Find(c Criteria) (fileList FileInfos, errs error) {
 		"rxmatcher": c.Matcher,
 		"min_age":   humanReadableDuration(c.MinAge),
 		"max_age":   humanReadableDuration(c.MaxAge),
-		"min_size":  c.MinSize,
-		"max_size":  c.MaxSize,
+		"min_size":  humanReadableFileSize(float64(c.MinSize)),
+		"max_size":  humanReadableFileSize(float64(c.MaxSize)),
 	})
 	inf, err := os.Stat(c.Folder)
 	if err != nil {

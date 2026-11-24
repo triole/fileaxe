@@ -62,8 +62,8 @@ func (fa FileAxe) logStart() {
 		"symlinks":  fa.Conf.FollowSymlinks,
 		"min_age":   humanReadableDuration(fa.Conf.MinAge),
 		"max_age":   humanReadableDuration(fa.Conf.MaxAge),
-		"min_size":  fa.Conf.MinSize,
-		"max_size":  fa.Conf.MaxSize,
+		"min_size":  humanReadableFileSize(float64(fa.Conf.MinSize)),
+		"max_size":  humanReadableFileSize(float64(fa.Conf.MaxSize)),
 	})
 }
 
