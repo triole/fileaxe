@@ -73,13 +73,38 @@ func TestRotateRespectsSizeFilter(t *testing.T) {
 	dir := t.TempDir()
 	big := filepath.Join(dir, "big.log")
 	small := filepath.Join(dir, "small.log")
-	writeSizedFile(t, big, 2<<20)
-	writeSizedFile(t, small, 1024)
+	bigContent := strings.Repeat("B", 2<<20)
+	writeTestFile(t, big, bigContent)
+	writeTestFile(t, small, strings.Repeat("s", 1024))
 
 	cnf := conf.InitTestConf("rotate", dir, `\.log$`)
 	cnf.MinSize = 1 << 20
 	fa := Init(cnf, logseal.Init())
 	fa.Run()
+
+	// The source is only truncated after a successful compression, so a missing
+	// or empty archive would mean the rotated content was lost.
+	archives := filesWithSuffix(t, dir, ".gz")
+	if len(archives) != 1 {
+		t.Fatalf("want exactly one archive, got %v", archives)
+	}
+	if !strings.HasPrefix(filepath.Base(archives[0]), "big_log_") {
+		t.Errorf(
+			"archive %q does not belong to the rotated file %q",
+			filepath.Base(archives[0]), filepath.Base(big),
+		)
+	}
+	if fi, err := os.Stat(archives[0]); err != nil {
+		t.Fatalf("can not stat %q: %v", archives[0], err)
+	} else if fi.Size() == 0 {
+		t.Errorf("archive %q is empty", archives[0])
+	}
+	if got := readTarGzEntry(t, archives[0], "big.log"); got != bigContent {
+		t.Errorf(
+			"archive %q holds %d bytes of the original content, want %d",
+			filepath.Base(archives[0]), len(got), len(bigContent),
+		)
+	}
 
 	if fi, err := os.Stat(big); err != nil {
 		t.Fatalf("can not stat %q: %v", big, err)

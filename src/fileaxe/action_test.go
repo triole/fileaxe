@@ -1,7 +1,9 @@
 package fileaxe
 
 import (
+	"archive/tar"
 	"bytes"
+	"compress/gzip"
 	"io"
 	"os"
 	"path/filepath"
@@ -12,6 +14,44 @@ import (
 
 	"github.com/triole/logseal"
 )
+
+// readTarGzEntry returns the content of the entry called name inside a gzip
+// compressed tar archive, which is what the compression commands produce.
+func readTarGzEntry(t *testing.T, archive, name string) string {
+	t.Helper()
+	f, err := os.Open(archive)
+	if err != nil {
+		t.Fatalf("can not open %q: %v", archive, err)
+	}
+	defer f.Close()
+
+	gz, err := gzip.NewReader(f)
+	if err != nil {
+		t.Fatalf("can not read gzip stream of %q: %v", archive, err)
+	}
+	defer gz.Close()
+
+	tr := tar.NewReader(gz)
+	for {
+		hdr, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Fatalf("can not read tar stream of %q: %v", archive, err)
+		}
+		if filepath.Base(hdr.Name) != name {
+			continue
+		}
+		content, err := io.ReadAll(tr)
+		if err != nil {
+			t.Fatalf("can not read %q from %q: %v", name, archive, err)
+		}
+		return string(content)
+	}
+	t.Fatalf("archive %q does not contain %q", archive, name)
+	return ""
+}
 
 func filesWithSuffix(t *testing.T, dir, suffix string) []string {
 	t.Helper()
