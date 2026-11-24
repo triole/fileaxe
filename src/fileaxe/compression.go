@@ -2,9 +2,10 @@ package fileaxe
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/mholt/archives"
@@ -106,10 +107,15 @@ func (fa FileAxe) runCompression(sources []string, target string, format archive
 		return err
 	}
 
-	out, err := os.Create(target)
+	// O_EXCL: never overwrite an existing archive. Two sources can sanitize to
+	// the same base name, and a rerun within the same second can repeat a target;
+	// truncating an earlier archive would destroy the only copy of its content.
+	out, err := os.OpenFile(
+		target, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0666,
+	)
 	if err != nil {
 		fa.Lg.Error(
-			"can not create file",
+			"can not create archive",
 			logseal.F{"target": target, "error": err},
 		)
 		return err
@@ -140,10 +146,19 @@ func (fa FileAxe) runCompression(sources []string, target string, format archive
 
 func (fa FileAxe) makeCompressionTargetFileName(fn, compressionFormat string) (tar string) {
 	cleanBase := rxReplaceAllString(filepath.Base(fn), "[^A-Za-z0-9_\\-]", "_")
-	noext := strings.TrimSuffix(cleanBase, filepath.Ext(fn))
 
 	tar = filepath.Join(
-		filepath.Dir(fn), noext+"_"+timestamp()+"."+compressionFormat,
+		filepath.Dir(fn),
+		cleanBase+"_"+timestamp()+"_"+sourceTag(fn)+"."+compressionFormat,
 	)
 	return
+}
+
+// sourceTag returns a short stable tag for the full source path. Sanitizing a
+// base name maps different files onto the same string (a.b.log and a_b.log both
+// become a_b_log), so the tag keeps their archives apart even when they share a
+// directory and a timestamp.
+func sourceTag(path string) string {
+	sum := sha256.Sum256([]byte(path))
+	return hex.EncodeToString(sum[:6])
 }
