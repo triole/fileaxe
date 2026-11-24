@@ -40,11 +40,13 @@ Flags:
                                   usage: -z 1g, -z 1m,10m
   -s, --sort-by="age"             sort output list by, can be: age, path
   -o, --order="desc"              sort order
-      --log-file="/dev/stdout"    log file
+      --log-file="/dev/stdout"    log file, ignored on a dry run, which always
+                                  logs to stdout
       --log-level="info"          log level
       --log-no-colors             disable output colours, print plain text
       --log-json                  enable json log, instead of text one
-  -n, --dry-run                   dry run, just print don't do
+  -n, --dry-run                   dry run, just print don't do, logs are written
+                                  to stdout
 
 Commands:
   list        list files matching the criteria
