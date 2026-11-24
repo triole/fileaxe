@@ -49,18 +49,25 @@ func humanReadableDuration(d time.Duration) string {
 	var b strings.Builder
 	b.WriteString(sign)
 	if days > 0 {
-		b.WriteString(strconv.FormatInt(int64(days), 10) + "d")
+		writeDurationUnit(&b, int64(days), 'd')
 	}
 	if hours > 0 {
-		b.WriteString(strconv.FormatInt(int64(hours), 10) + "h")
+		writeDurationUnit(&b, int64(hours), 'h')
 	}
 	if minutes > 0 {
-		b.WriteString(strconv.FormatInt(int64(minutes), 10) + "m")
+		writeDurationUnit(&b, int64(minutes), 'm')
 	}
 	if seconds > 0 || b.Len() == len(sign) {
-		b.WriteString(strconv.FormatInt(int64(seconds), 10) + "s")
+		writeDurationUnit(&b, int64(seconds), 's')
 	}
 	return b.String()
+}
+
+// writeDurationUnit appends a number and its unit without building an
+// intermediate string for the concatenation.
+func writeDurationUnit(b *strings.Builder, value int64, unit byte) {
+	b.WriteString(strconv.FormatInt(value, 10))
+	b.WriteByte(unit)
 }
 
 func rxReplaceAllString(basestring, regex, newstring string) (r string) {
