@@ -84,6 +84,39 @@ func assertFileMagic(t *testing.T, path string, magic []byte) {
 	}
 }
 
+// Regression test: a dry run asked for truncation confirmation, which blocked
+// non-interactive runs even though nothing could be truncated.
+func TestTruncateDryRunDoesNotPrompt(t *testing.T) {
+	dir := t.TempDir()
+	source := filepath.Join(dir, "a.log")
+	writeTestFile(t, source, "payload")
+
+	cnf := conf.InitTestConf("truncate", dir, `\.log$`)
+	cnf.DryRun = true
+	cnf.Truncate.Yes = false
+
+	captureStdin(t, "y\n")
+	var runErr error
+	out := captureStdout(t, func() {
+		runErr = Init(cnf, logseal.Init("info", "stdout", true)).truncate(
+			FileInfos{{Path: source, Size: 7, SizeHR: "7B"}},
+		)
+	})
+
+	if runErr != nil {
+		t.Fatalf("dry run truncate failed: %v", runErr)
+	}
+	if strings.Contains(out, "Type [") {
+		t.Errorf("a dry run must not ask for confirmation, got %q", out)
+	}
+	if !strings.Contains(out, "truncate") {
+		t.Errorf("a dry run should report the skipped truncation, got %q", out)
+	}
+	if got := readTestFile(t, source); got != "payload" {
+		t.Errorf("dry run modified the source: got %q, want %q", got, "payload")
+	}
+}
+
 // Regression test: rotate used to read the compression format of the compress
 // command, so -g/--format was silently ignored and every archive was gz.
 func TestRotateUsesRotateCompressionFormat(t *testing.T) {

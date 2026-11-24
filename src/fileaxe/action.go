@@ -106,7 +106,8 @@ func (fa FileAxe) move(fileList FileInfos) (errs error) {
 
 func (fa FileAxe) truncate(fileList FileInfos) (errs error) {
 	for _, fil := range fileList {
-		if !fa.Conf.Truncate.Yes && !fa.askForConfirmation(fil.Path, "truncation") {
+		// A dry run can not truncate anything, so it must not wait for input.
+		if !fa.Conf.DryRun && !fa.Conf.Truncate.Yes && !fa.askForConfirmation(fil.Path, "truncation") {
 			continue
 		}
 		if err := fa.truncateFile(fil); err != nil {

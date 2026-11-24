@@ -43,6 +43,28 @@ func captureStdout(t *testing.T, f func()) string {
 	return string(out)
 }
 
+// captureStdin replaces os.Stdin with a pipe carrying input and restores it
+// after the test. It lets confirmation paths run without touching the terminal.
+func captureStdin(t *testing.T, input string) {
+	t.Helper()
+	old := os.Stdin
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("can not create stdin pipe: %v", err)
+	}
+	if _, err := io.WriteString(w, input); err != nil {
+		t.Fatalf("can not write to stdin pipe: %v", err)
+	}
+	if err := w.Close(); err != nil {
+		t.Fatalf("can not close stdin pipe writer: %v", err)
+	}
+	os.Stdin = r
+	t.Cleanup(func() {
+		os.Stdin = old
+		_ = r.Close()
+	})
+}
+
 func newLogTestAxe(cnf conf.Conf) FileAxe {
 	return Init(cnf, logseal.Init("info", "stdout", true))
 }
