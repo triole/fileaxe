@@ -20,6 +20,5 @@ func main() {
 
 	conf := conf.Init(CLI, lg)
 	la := fileaxe.Init(conf, lg)
-	logStart(lg, conf)
 	la.Run()
 }

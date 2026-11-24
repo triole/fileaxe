@@ -1,18 +1,11 @@
 package fileaxe
 
 import (
-	"fmt"
-
 	"github.com/triole/logseal"
 )
 
 func (fa FileAxe) Run() {
-	if !fa.Conf.Ls.Plain {
-		fa.Lg.Debug(
-			"start fileaxe",
-			logseal.F{"conf": fmt.Sprintf("%+v", fa.Conf)},
-		)
-	}
+	fa.logStart()
 
 	fileList := fa.Find(Criteria{
 		Folder:  fa.Conf.Folder,
@@ -43,4 +36,23 @@ func (fa FileAxe) Run() {
 	case "remove":
 		fa.remove(fileList)
 	}
+}
+
+// logStart reports the run configuration once, before any file is touched. A
+// plain listing promises file names only on stdout, so it stays silent there.
+// The field names match the events emitted by Find, so a log query for min_age
+// finds both the start line and the per-file decisions.
+func (fa FileAxe) logStart() {
+	if fa.Conf.Ls.Plain {
+		return
+	}
+	fa.Lg.Info("start fileaxe", logseal.F{
+		"action":    fa.Conf.Action,
+		"folder":    fa.Conf.Folder,
+		"rxmatcher": fa.Conf.Matcher,
+		"min_age":   fa.Conf.MinAge,
+		"max_age":   fa.Conf.MaxAge,
+		"min_size":  fa.Conf.MinSize,
+		"max_size":  fa.Conf.MaxSize,
+	})
 }
