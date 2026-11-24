@@ -1,10 +1,13 @@
 package fileaxe
 
 import (
+	"time"
+
 	"github.com/triole/logseal"
 )
 
 func (fa FileAxe) Run() {
+	start := time.Now()
 	fa.logStart()
 
 	fileList := fa.Find(Criteria{
@@ -36,6 +39,7 @@ func (fa FileAxe) Run() {
 	case "remove":
 		fa.remove(fileList)
 	}
+	fa.logDone(fileList, time.Since(start))
 }
 
 // logStart reports the run configuration once, before any file is touched. A
@@ -56,4 +60,36 @@ func (fa FileAxe) logStart() {
 		"min_size":  fa.Conf.MinSize,
 		"max_size":  fa.Conf.MaxSize,
 	})
+}
+
+// logDone reports the outcome of a run: how long it took and what the matched
+// set looked like. Like the start message it stays silent during a plain
+// listing, whose output is reserved for file names. Oldest and newest age are
+// omitted for an empty match, where they would suggest a file was found.
+func (fa FileAxe) logDone(fileList FileInfos, elapsed time.Duration) {
+	if fa.Conf.Ls.Plain {
+		return
+	}
+	var totalSize int64
+	var oldest, newest time.Duration
+	for i, fil := range fileList {
+		totalSize += fil.Size
+		if i == 0 || fil.Age > oldest {
+			oldest = fil.Age
+		}
+		if i == 0 || fil.Age < newest {
+			newest = fil.Age
+		}
+	}
+	fields := logseal.F{
+		"action":   fa.Conf.Action,
+		"no":       len(fileList),
+		"size":     humanReadableFileSize(float64(totalSize)),
+		"duration": humanReadableDuration(elapsed),
+	}
+	if len(fileList) > 0 {
+		fields["oldest_age"] = humanReadableDuration(oldest)
+		fields["newest_age"] = humanReadableDuration(newest)
+	}
+	fa.Lg.Info("done fileaxe", fields)
 }

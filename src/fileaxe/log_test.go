@@ -108,3 +108,63 @@ func TestLogFileInfoCarriesSizeAndReadableAge(t *testing.T) {
 		t.Errorf("file field: got %v, want %q", got, fil.Path)
 	}
 }
+
+func TestRunLogsDoneWithStats(t *testing.T) {
+	dir := t.TempDir()
+	old := filepath.Join(dir, "old.log")
+	young := filepath.Join(dir, "young.log")
+	writeTestFile(t, old, strings.Repeat("o", 1024))
+	writeTestFile(t, young, strings.Repeat("y", 2048))
+
+	now := time.Now()
+	cnf := conf.InitTestConf("list", dir, `\.log$`)
+	cnf.Now = now
+	if err := os.Chtimes(old, now.Add(-50*time.Hour), now.Add(-50*time.Hour)); err != nil {
+		t.Fatalf("can not set mtime of %q: %v", old, err)
+	}
+	if err := os.Chtimes(young, now.Add(-2*time.Hour), now.Add(-2*time.Hour)); err != nil {
+		t.Fatalf("can not set mtime of %q: %v", young, err)
+	}
+
+	out := captureStdout(t, func() { newLogTestAxe(cnf).Run() })
+
+	for _, field := range []string{
+		"msg=done fileaxe", "action=list", "no=2", "size=3KB",
+		"duration=", "oldest_age=2d2h", "newest_age=2h",
+	} {
+		if !strings.Contains(out, field) {
+			t.Errorf("done message should contain %q, got %q", field, out)
+		}
+	}
+}
+
+func TestLogDoneOmitsAgeSpanWithoutMatches(t *testing.T) {
+	cnf := conf.InitTestConf("list", t.TempDir(), `\.log$`)
+
+	out := captureStdout(t, func() { newLogTestAxe(cnf).Run() })
+
+	if !strings.Contains(out, "msg=done fileaxe") || !strings.Contains(out, "no=0") {
+		t.Errorf("want a done message for an empty match, got %q", out)
+	}
+	for _, field := range []string{"oldest_age", "newest_age"} {
+		if strings.Contains(out, field) {
+			t.Errorf("empty match must not report %q, got %q", field, out)
+		}
+	}
+}
+
+func TestLogDoneRespectsPlainListing(t *testing.T) {
+	dir := t.TempDir()
+	writeTestFile(t, filepath.Join(dir, "a.log"), "a")
+	cnf := conf.InitTestConf("list", dir, `\.log$`)
+	cnf.Ls.Plain = true
+
+	out := captureStdout(t, func() { newLogTestAxe(cnf).Run() })
+
+	if strings.Contains(out, "done fileaxe") {
+		t.Errorf("plain listing must not write a done message, got %q", out)
+	}
+	if strings.TrimSpace(out) != filepath.Join(dir, "a.log") {
+		t.Errorf("plain listing should only contain the file name, got %q", out)
+	}
+}
