@@ -78,7 +78,6 @@ func TestRotateRespectsSizeFilter(t *testing.T) {
 
 	cnf := conf.InitTestConf("rotate", dir, `\.log$`)
 	cnf.MinSize = 1 << 20
-	cnf.Compress.CompressionFormat = "gz"
 	fa := Init(cnf, logseal.Init())
 	fa.Run()
 

@@ -57,14 +57,14 @@ func (fa FileAxe) compress(fileList FileInfos) {
 
 func (fa FileAxe) rotate(fileList FileInfos) {
 	for _, fil := range fileList {
-		tar := fa.makeCompressionTargetFileName(fil.Path, fa.Conf.Compress.CompressionFormat)
+		tar := fa.makeCompressionTargetFileName(fil.Path, fa.Conf.Rotate.CompressionFormat)
 		fa.Lg.Trace("make target file name",
 			logseal.F{
 				"source": fil.Path, "target": tar,
 			},
 		)
 
-		err := fa.compressFile(fil, tar, fa.Conf.Compress.CompressionFormat)
+		err := fa.compressFile(fil, tar, fa.Conf.Rotate.CompressionFormat)
 		if !fa.Conf.Rotate.SkipTruncate && err == nil {
 			err := fa.truncateFile(fil)
 			fa.Lg.IfErrError(
